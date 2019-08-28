@@ -99,10 +99,6 @@ The file `scripts/test.ini` contains the environment variables used in the tests
 
 ## Usage
 
-```
-
-```
-
 ### Redis Tools
 This provides an interface to a Redis server via supplied redis parameters.
 
@@ -154,3 +150,4 @@ REDIS_TASK.subscribe(callback=handle_callback, pattern=CHANNEL, keep_alive=True)
 
 # publish document
 REDIS_TASK.publish(task=document, type=document_type, tenant=aether_tenant) # this will trigger the 'handle_callback' function with the published document to all subscribed clients
+```
