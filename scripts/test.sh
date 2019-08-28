@@ -35,7 +35,7 @@ echo "1.2.3"   > /var/tmp/VERSION
 echo "testing" > /var/tmp/REVISION
 
 chmod 770 test.py
-test.py
+python test.py
 
 # ----------------------------------------
 # lint tests
