@@ -1,0 +1,19 @@
+################################################################################
+#                                                                              #
+#                           Requirements for testing                           #
+#    (If you need production dependencies, add them to the `setup.py` file)    #
+#                                                                              #
+################################################################################
+
+eha_jsonpath
+jsonschema
+redis
+requests
+spavro
+
+# Test libraries
+coverage
+fakeredis
+flake8
+pytest
+pytest-runner
