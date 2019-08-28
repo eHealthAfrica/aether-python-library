@@ -9,7 +9,7 @@ This is the official Python Library with Aether functions.
 - [Distribution](#distribution)
 - [Tests](#tests)
 - [Usage](#usage)
-  - [Redis tools](#redis_tools)
+  - [Redis tools](#redis-tools)
 
 
 ## Requirements
@@ -20,7 +20,7 @@ Python libraries:
 
 - [eha-jsonpath](https://github.com/eHealthAfrica/jsonpath-extensions/)
   Provides new Extensions to the jsonpath_ng python library to provide commonly requested functions
-- [jsonschema] (https://github.com/Julian/jsonschema)
+- [jsonschema](https://github.com/Julian/jsonschema)
   An implementation of JSON Schema validation for Python
 - [redis](https://github.com/andymccurdy/redis-py)
   Python client for Redis key-value store
