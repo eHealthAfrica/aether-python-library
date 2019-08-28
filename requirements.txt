@@ -9,6 +9,7 @@ eha_jsonpath
 jsonschema
 redis
 requests
+six>=1.12
 spavro
 
 # Test libraries
