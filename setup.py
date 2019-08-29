@@ -18,6 +18,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
+import os
 from io import open
 from setuptools import setup, find_packages
 
@@ -26,24 +27,56 @@ def read(f):
     return open(f, 'r', encoding='utf-8').read()
 
 
+VERSION = os.environ.get('VERSION', '0.0.0')
+
+
 setup(
-    version=read('/var/tmp/VERSION').strip(),
+    version=VERSION,
     name='aether.python',
     description='A python library with Aether Python functionality',
     long_description=read('README.md'),
     long_description_content_type='text/markdown',
 
-    url='https://github.com/eHealthAfrica/aether/',
+    keywords=[
+        'redis',
+        'entity',
+        'extraction',
+        'utils',
+        'validators',
+        'aether',
+    ],
+
+    url='https://github.com/eHealthAfrica/aether-python-library/',
     author='eHealth Africa',
     author_email='aether@ehealthafrica.org',
     license='Apache2 License',
 
+    python_requires='>=3.6',
     install_requires=[
-        'requests'
+        'requests',
+        'eha_jsonpath',
+        'jsonschema',
+        'requests',
+        'spavro',
     ],
-    setup_requires=['pytest-runner'],
-    tests_require=['pytest'],
-
+    extras_require={
+        'test': [
+            'coverage',
+            'flake8',
+            'flake8-quotes',
+            'tblib',  # for paralell test runner
+        ],
+    },
     packages=find_packages(exclude=['*tests*']),
     include_package_data=True,
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Environment :: Plugins',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: Apache Software License',
+        'Natural Language :: English',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python :: 3 :: Only',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+    ],
 )
