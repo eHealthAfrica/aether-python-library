@@ -149,8 +149,9 @@ class ValidatorsTest(TestCase):
             {'a': 1},
         ]
         for mapping in mappings:
-            with self.assertRaises(Exception) as err:
+            with self.assertRaises(validators.ValidationError) as err:
                 validators.validate_mapping_definition(mapping)
+
             self.assertIn(
                 'is not valid under any of the given schemas',
                 str(err.exception),
