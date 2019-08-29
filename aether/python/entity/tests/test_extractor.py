@@ -16,6 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
+import uuid
 from unittest import TestCase
 
 from aether.python.entity import extractor
@@ -314,6 +315,120 @@ class EntityExtractorTests(TestCase):
         expected_entity = EXAMPLE_ENTITY
         self.assertEqual(
             len(expected_entity['Person']), len(entities['Person']))
+
+    def test_extract_create_entities__no_requirements(self):
+        '''
+        If the mapping contains neither paths nor entity references, no
+        entities can be extracted.
+        '''
+        submission_payload = EXAMPLE_SOURCE_DATA
+        mapping_definition = {'mapping': [], 'entities': {}}
+        schemas = {}
+        submission_data, entities = extractor.extract_create_entities(
+            submission_payload,
+            mapping_definition,
+            schemas,
+        )
+        submission_errors = submission_data['aether_errors']
+        self.assertEqual(len(submission_errors), 0)
+        self.assertEqual(len(entities), 0)
+
+    def test_extract_create_entities__success(self):
+        '''
+        Assert that no errors are accumulated and that the
+        extracted entities are of the expected type.
+        '''
+        submission_payload = EXAMPLE_SOURCE_DATA
+        mapping_definition = EXAMPLE_MAPPING
+        schemas = {'Person': EXAMPLE_SCHEMA}
+        submission_data, entities = extractor.extract_create_entities(
+            submission_payload,
+            mapping_definition,
+            schemas,
+        )
+        submission_errors = submission_data['aether_errors']
+        self.assertEqual(len(submission_errors), 0)
+        self.assertTrue(len(entities) > 0)
+        for entity in entities:
+            self.assertIn(entity.schemadecorator_name, schemas.keys())
+            self.assertEqual(entity.status, 'Publishable')
+
+    def test_extract_create_entities__validation_error(self):
+        '''
+        Assert that validation errors are accumulated and that they contain
+        information about the non-validating entities.
+        '''
+        submission_payload = EXAMPLE_SOURCE_DATA
+        mapping_definition = EXAMPLE_MAPPING
+        # This schema shares the field names `id` and `name` with
+        # EXAMPLE_SCHEMA. The field types differ though, so we should expect a
+        # validation error to occur during entity extraction.
+        error_count = 2
+        schema = {
+            'type': 'record',
+            'name': 'Test',
+            'fields': [
+                {
+                    'name': 'id',
+                    'type': 'int',  # error 1
+                },
+                {
+                    'name': 'name',  # error 2
+                    'type': {
+                        'type': 'enum',
+                        'name': 'Name',
+                        'symbols': ['John', 'Jane'],
+                    }
+                },
+            ]
+        }
+        schemas = {'Person': schema}
+        submission_data, entities = extractor.extract_create_entities(
+            submission_payload,
+            mapping_definition,
+            schemas,
+        )
+        submission_errors = submission_data['aether_errors']
+        self.assertEqual(
+            len(submission_errors),
+            len(EXAMPLE_SOURCE_DATA['data']['people']) * error_count,
+        )
+        self.assertEqual(len(entities), 0)
+
+    def test_extract_create_entities__error_not_a_uuid(self):
+        submission_payload = {'id': 'not-a-uuid', 'a': 1}
+        mapping_definition = {
+            'entities': {'Test': str(uuid.uuid4())},
+            'mapping': [
+                ['$.id', 'Test.id'],
+                ['$.a', 'Test.b'],
+            ],
+        }
+        schema = {
+            'type': 'record',
+            'name': 'Test',
+            'fields': [
+                {
+                    'name': 'id',
+                    'type': 'string',
+                },
+                {
+                    'name': 'b',
+                    'type': 'int',
+                },
+            ],
+        }
+        schemas = {'Test': schema}
+        submission_data, entities = extractor.extract_create_entities(
+            submission_payload,
+            mapping_definition,
+            schemas,
+        )
+        submission_errors = submission_data['aether_errors']
+        self.assertEqual(len(entities), 0)
+        self.assertEqual(len(submission_errors), 1)
+        self.assertIn('is not a valid uuid',
+                      submission_errors[0]['description'])
 
     def test_is_not_custom_jsonpath(self):
         # Examples taken from https://github.com/json-path/JsonPath#path-examples

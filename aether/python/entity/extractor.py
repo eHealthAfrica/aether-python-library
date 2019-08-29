@@ -589,3 +589,36 @@ def extract_entities(requirements, response_data, entity_definitions, schemas):
     validation_result = validate_entities(entities, schemas)
     data[ENTITY_EXTRACTION_ERRORS].extend(validation_result.validation_errors)
     return data, validation_result.entities
+
+
+def extract_create_entities(submission_payload, mapping_definition, schemas):
+
+    # Get entity definitions
+    entity_defs = get_entity_definitions(mapping_definition, schemas)
+
+    # Get field mappings
+    field_mappings = get_field_mappings(mapping_definition)
+
+    # Get entity requirements
+    requirements = get_entity_requirements(entity_defs, field_mappings)
+
+    # Only attempt entity extraction if requirements are present
+    submission_data = {ENTITY_EXTRACTION_ERRORS: []}
+    entity_types = {}
+    if any(requirements.values()):
+        submission_data, entity_types = extract_entities(
+            requirements,
+            submission_payload,
+            entity_defs,
+            schemas,
+        )
+    entities = []
+    for schemadecorator_name, entity_payloads in entity_types.items():
+        for entity_payload in entity_payloads:
+            entity = Entity(
+                payload=entity_payload,
+                schemadecorator_name=schemadecorator_name,
+                status='Publishable',
+            )
+            entities.append(entity)
+    return submission_data, entities
