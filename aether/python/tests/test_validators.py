@@ -19,6 +19,7 @@
 import uuid
 
 from unittest import TestCase
+from django.core.exceptions import ValidationError
 
 from aether.python import validators
 from . import NESTED_ARRAY_SCHEMA
@@ -53,7 +54,7 @@ class ValidatorsTest(TestCase):
             self.assertTrue(False)
 
     def test_validate_avro_schema__error(self):
-        with self.assertRaises(Exception) as err:
+        with self.assertRaises(ValidationError) as err:
             validators.validate_avro_schema({})  # "{}" is not a valid Avro schema
         message = str(err.exception)
         self.assertIn('No "type" property', message)
@@ -87,7 +88,7 @@ class ValidatorsTest(TestCase):
                 }
             ]
         }
-        with self.assertRaises(Exception) as err:
+        with self.assertRaises(ValidationError) as err:
             validators.validate_id_field(invalid_schema)
         message = str(err.exception)
         self.assertIn(validators.MESSAGE_REQUIRED_ID, message)
@@ -98,7 +99,7 @@ class ValidatorsTest(TestCase):
             {'name': 'Test2', 'type': 'record'},
             {'name': 'Test3', 'type': 'record'},
         ]
-        with self.assertRaises(Exception) as err:
+        with self.assertRaises(ValidationError) as err:
             validators.validate_id_field(missing_aetherBaseSchema)
         message = str(err.exception)
         self.assertIn(validators.MESSAGE_REQUIRED_ID, message)
@@ -108,7 +109,7 @@ class ValidatorsTest(TestCase):
             {'name': 'Test2', 'type': 'record'},
             {'name': 'Test3', 'type': 'record', 'aetherBaseSchema': True},
         ]
-        with self.assertRaises(Exception) as err:
+        with self.assertRaises(ValidationError) as err:
             validators.validate_id_field(more_than_one_aetherBaseSchema)
         message = str(err.exception)
         self.assertIn(validators.MESSAGE_REQUIRED_ID, message)
@@ -118,7 +119,7 @@ class ValidatorsTest(TestCase):
             {'name': 'Test2', 'type': 'record'},
             {'name': 'Test3', 'type': 'record', 'aetherBaseSchema': True},
         ]
-        with self.assertRaises(Exception) as err:
+        with self.assertRaises(ValidationError) as err:
             validators.validate_id_field(one_aetherBaseSchema__missing_id)
         message = str(err.exception)
         self.assertIn(validators.MESSAGE_REQUIRED_ID, message)
@@ -149,9 +150,8 @@ class ValidatorsTest(TestCase):
             {'a': 1},
         ]
         for mapping in mappings:
-            with self.assertRaises(validators.ValidationError) as err:
+            with self.assertRaises(ValidationError) as err:
                 validators.validate_mapping_definition(mapping)
-
             self.assertIn(
                 'is not valid under any of the given schemas',
                 str(err.exception),
@@ -169,7 +169,7 @@ class ValidatorsTest(TestCase):
             self.assertTrue(False)
 
     def test_validate_schemas__error(self):
-        with self.assertRaises(Exception) as err:
+        with self.assertRaises(ValidationError) as err:
             validators.validate_schemas([self.schema])
         message = str(err.exception)
         self.assertIn(' is not an Object', message)
@@ -209,7 +209,7 @@ class ValidatorsTest(TestCase):
             {'a': 'b'},
         ]
         for payload in payloads:
-            with self.assertRaises(Exception) as err:
+            with self.assertRaises(ValidationError) as err:
                 validators.validate_entity_payload(
                     schema_definition=schema_definition,
                     payload=payload,
