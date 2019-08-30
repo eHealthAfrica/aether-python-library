@@ -22,6 +22,7 @@ import json
 import uuid
 
 from jsonschema.validators import Draft4Validator
+from django.core.exceptions import ValidationError
 
 from spavro.io import validate
 from spavro.schema import parse, SchemaParseException
@@ -84,12 +85,12 @@ EntityValidationResult = collections.namedtuple(
 def validate_avro_schema(value):
     '''
     Attempt to parse ``value`` into an Avro schema.
-    Raise ``Exception`` on error.
+    Raise ``ValidationError`` on error.
     '''
     try:
         parse(json.dumps(value))
     except SchemaParseException as e:
-        raise Exception(str(e))
+        raise ValidationError(str(e))
 
 
 def _has_valid_id_field(schema):
@@ -114,17 +115,17 @@ def _has_valid_id_field(schema):
 def validate_id_field(schema):
     '''
     If ``schema`` does not have a top-level field "id" of type "string",
-    raise ``Exception``.
+    raise ``ValidationError``.
     '''
     if not _has_valid_id_field(schema):
-        raise Exception(MESSAGE_REQUIRED_ID)
+        raise ValidationError(MESSAGE_REQUIRED_ID)
 
 
 def validate_schema_definition(value):
     '''
     Attempt to parse ``value`` into an Avro schema and checks if it has
     a top-level field "id" of type "string.
-    Raise ``Exception`` on error.
+    Raise ``ValidationError`` on error.
     '''
     validate_avro_schema(value)
     validate_id_field(value)
@@ -133,19 +134,19 @@ def validate_schema_definition(value):
 def validate_mapping_definition(value):
     '''
     If ``value`` does not conform to the mapping definition schema,
-    raise ``Exception``.
+    raise ``ValidationError``.
     '''
     errors = sorted(
         mapping_definition_validator.iter_errors(value),
         key=lambda e: e.path,
     )
     if errors:
-        raise Exception([e.message for e in errors])
+        raise ValidationError([e.message for e in errors])
 
 
 def validate_schemas(value):
     if not isinstance(value, dict):
-        raise Exception(MESSAGE_NOT_OBJECT.format(value))
+        raise ValidationError(MESSAGE_NOT_OBJECT.format(value))
 
     for schema in value.values():
         validate_schema_definition(schema)
@@ -159,10 +160,10 @@ def validate_entity_payload(schema_definition, payload):
         avro_schema = parse(json.dumps(schema_definition))
         valid = validate(avro_schema, payload)
         if not valid:
-            raise Exception(MESSAGE_NOT_VALID)
+            raise ValidationError(MESSAGE_NOT_VALID)
         return True
     except Exception as err:
-        raise Exception(str(err))
+        raise ValidationError(str(err))
 
 
 def validate_entity_payload_id(entity_payload):
