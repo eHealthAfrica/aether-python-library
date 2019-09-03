@@ -22,7 +22,7 @@ import json
 import uuid
 
 from jsonschema.validators import Draft4Validator
-from django.core.exceptions import ValidationError
+from aether.python.exceptions import ValidationError
 
 from spavro.io import validate
 from spavro.schema import parse, SchemaParseException
