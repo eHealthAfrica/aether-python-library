@@ -19,7 +19,7 @@
 import uuid
 
 from unittest import TestCase
-from django.core.exceptions import ValidationError
+from aether.python.exceptions import ValidationError
 
 from aether.python import validators
 from . import NESTED_ARRAY_SCHEMA
