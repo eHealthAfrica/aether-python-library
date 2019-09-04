@@ -16,7 +16,7 @@
 # specific language governing permissions and limitations
 # under the License.
 
-from unittest import TestCase
+from unittest import TestCase, mock
 
 from aether.python import utils
 
@@ -70,3 +70,55 @@ class UtilsTests(TestCase):
 
         self.assertTrue(is_included), 'Person should be found in this house.'
         self.assertFalse(not_included, 'Person should not found in this house.')
+
+    def test__request__once(self):
+        with mock.patch('aether.python.utils.requests.request',
+                        return_value='ok') as mock_req_args:
+            resp_args = utils.request('no matter what')
+            self.assertEqual(resp_args, 'ok')
+            mock_req_args.assert_called_once_with('no matter what')
+
+        with mock.patch('aether.python.utils.requests.request',
+                        return_value='ok') as mock_req_kwargs:
+            resp_kwargs = utils.request(url='localhost', method='get')
+            self.assertEqual(resp_kwargs, 'ok')
+            mock_req_kwargs.assert_called_once_with(url='localhost', method='get')
+
+    def test__request__twice(self):
+        with mock.patch('aether.python.utils.requests.request',
+                        side_effect=[Exception, 'ok']) as mock_req:
+            response = utils.request(url='trying twice')
+            self.assertEqual(response, 'ok')
+            self.assertEqual(mock_req.call_count, 2)
+            mock_req.assert_has_calls([
+                mock.call(url='trying twice'),
+                mock.call(url='trying twice'),
+            ])
+
+    def test__request__3_times(self):
+        with mock.patch('aether.python.utils.requests.request',
+                        side_effect=[Exception, Exception, 'ok']) as mock_req:
+            response = utils.request(url='trying three times')
+            self.assertEqual(response, 'ok')
+            self.assertEqual(mock_req.call_count, 3)
+            mock_req.assert_has_calls([
+                mock.call(url='trying three times'),
+                mock.call(url='trying three times'),
+                mock.call(url='trying three times'),
+            ])
+
+    def test__request__3_times__raises(self):
+        with mock.patch('aether.python.utils.requests.request',
+                        side_effect=[
+                            Exception('1'),
+                            Exception('2'),
+                            Exception('3'),
+                            'ok',
+                        ]) as mock_req:
+            with self.assertRaises(Exception) as e:
+                response = utils.request(url='raises exception')
+                self.assertIsNone(response)
+                self.assertIsNotNone(e)
+                self.assertEqual(str(e), '3')
+
+            self.assertEqual(mock_req.call_count, 3)

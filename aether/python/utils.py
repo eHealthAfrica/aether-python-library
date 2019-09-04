@@ -16,6 +16,8 @@
 # specific language governing permissions and limitations
 # under the License.
 
+import requests
+from time import sleep
 from aether.python.constants import MergeOptions as MERGE_OPTIONS
 
 
@@ -52,3 +54,26 @@ def merge_objects(source, target, direction):
     else:
         result = target
     return result
+
+
+def request(*args, **kwargs):
+    '''
+    Executes the request call at least three times to avoid
+    unexpected connection errors (not request expected ones).
+    Like:
+        # ConnectionResetError: [Errno 104] Connection reset by peer
+        # http.client.RemoteDisconnected: Remote end closed connection without response
+    '''
+
+    count = 0
+    exception = None
+
+    while count < 3:
+        try:
+            return requests.request(*args, **kwargs)
+        except Exception as e:
+            exception = e
+        count += 1
+        sleep(1)
+
+    raise exception
