@@ -79,6 +79,7 @@ class TaskHelper(object):
         self.pubsub = None
         self._subscribe_thread = None
         self.keep_alive = False
+        self.keep_alive_thread = None
 
     # Generic Redis Task Functions
     def add(
@@ -151,11 +152,11 @@ class TaskHelper(object):
             self._subscribe(callback, pattern)
 
         if self.keep_alive:
-            keep_alive_thread = threading.Thread(
+            self.keep_alive_thread = threading.Thread(
                 target=self.keep_alive_monitor,
                 args=(callback, pattern)
             )
-            keep_alive_thread.start()
+            self.keep_alive_thread.start()
 
     def keep_alive_monitor(self, callback, pattern):
         current_status = False
@@ -250,3 +251,5 @@ class TaskHelper(object):
                 AttributeError
             ):  # pragma: no cover
                 LOG.error('Could not explicitly stop subscribe thread: no connection')
+
+        self.keep_alive = False
