@@ -53,7 +53,7 @@ setup(
 
     python_requires='>=3.6',
     install_requires=[
-        'django',
+        'redis',
         'requests',
         'eha_jsonpath',
         'jsonschema',
