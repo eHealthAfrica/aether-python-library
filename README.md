@@ -77,7 +77,9 @@ or
 
 ## Tests
 
-How to test the library
+Depending on your preference you can either use virtualenv or pipenv to test the library locally.
+
+#### Virtual Env
 
 First install dependencies (execute it only once):
 
@@ -91,6 +93,19 @@ After that execute the following command:
 source ./venv/bin/activate
 ./scripts/test.sh
 ```
+
+#### Pipenv
+
+In the root folder run:
+```bash
+pipenv install .
+```
+
+Then to test run:
+```bash
+pipenv run scripts/test.sh
+```
+
 
 The file `scripts/test.ini` contains the environment variables used in the tests.
 

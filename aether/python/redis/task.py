@@ -30,6 +30,7 @@ from typing import (
     Any,
     Callable,
     Dict,
+    Iterable,
     NamedTuple,
     Union
 )
@@ -141,6 +142,17 @@ class TaskHelper(object):
         if not task:
             raise ValueError('No task with id {key}'.format(key=key))
         return json.loads(task)
+
+    def list(
+        self,
+        type: str,
+        tenant: str
+    ) -> Iterable[str]:
+        # ids of matching assets as a generator
+        key_identifier = '_{type}:{tenant}:*'.format(type=type, tenant=tenant)
+        for i in self.redis.scan_iter(key_identifier):
+            p = i.decode('utf-8').split(key_identifier[:-1])
+            yield p[1]
 
     # subscription tasks
 

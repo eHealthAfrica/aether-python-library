@@ -68,13 +68,16 @@ class TaskTests(TestCase):
         task = TaskHelper(settings)
         assert task is not None
 
-    def test_add_get_exists_remove(self):
+    def test_add_get_list_exists_remove(self):
         self.task.add(self.test_doc, 'mappings', 'aether')
         assert(
             len(self.task.get_keys('_map*')) == 1
         )
         doc = self.task.get(self.test_doc['id'], 'mappings', 'aether')
         assert doc['id'] == self.test_doc['id']
+
+        doc_ids = list(self.task.list('mappings', 'aether'))
+        assert doc['id'] in doc_ids
 
         assert(
             self.task.exists(self.test_doc['id'], 'mappings', 'aether')
