@@ -58,13 +58,15 @@ class UUIDEncoder(json.JSONEncoder):
 class Task(NamedTuple):
     id: str
     tenant: str
-    type: str
-    data: Union[Dict, None] = None  # None is not set
+    type: str                # object type in redis
+    data: Union[Dict, None]  # the message value from redis
 
 
 class TaskEvent(NamedTuple):
-    task_id: str
-    event: str
+    task_id: str    # event pertains to this task
+    tenant: str
+    type: str       # object type in redis
+    event: str      # event type in redis (set, del, etc)
 
 
 class TaskHelper(object):
@@ -237,6 +239,8 @@ class TaskHelper(object):
             else:
                 res = TaskEvent(
                     task_id=_id,
+                    tenant=tenant,
+                    type=_type,
                     event=redis_data
                 )
                 LOG.debug(f'ID: {_id} event: {redis_data}')
