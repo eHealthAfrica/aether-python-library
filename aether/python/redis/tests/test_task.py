@@ -16,16 +16,18 @@
 # specific language governing permissions and limitations
 # under the License.
 
-import fakeredis
+import birdisle.redis
 import uuid
 import time
 import os
 from typing import NamedTuple
 
 
-from unittest import TestCase, mock
+from unittest import TestCase
 
-from aether.python.redis.task import TaskHelper, get_settings, UUIDEncoder
+from aether.python.redis.task import (
+    Task, TaskEvent, TaskHelper, get_settings, UUIDEncoder
+)
 
 
 class Settings(NamedTuple):
@@ -36,10 +38,10 @@ class Settings(NamedTuple):
 
 
 settings = Settings(
-    REDIS_DB=os.environ.get('REDIS_DB'),
+    REDIS_DB=os.environ.get('REDIS_DB', 0),
     REDIS_PASSWORD=os.environ.get('REDIS_PASSWORD'),
     REDIS_HOST=os.environ.get('REDIS_HOST'),
-    REDIS_PORT=os.environ.get('REDIS_PORT'),
+    REDIS_PORT=int(os.environ.get('REDIS_PORT', 6379)),
 )
 
 WAIT_FOR_REDIS = 0.5
@@ -50,12 +52,18 @@ class TaskTests(TestCase):
         'id': '000-000-000-00',
         'name': 'test_name'
     }
-    redis_instance = fakeredis.FakeStrictRedis()
+    # work around a birdisle bug with redis 3.3 compat
+    birdisle.redis.LocalSocketConnection.health_check_interval = 0
+    redis_instance = birdisle.redis.StrictRedis()
+    # set keyspace notifications as we do in live
+    redis_instance.config_set('notify-keyspace-events', 'KEA')
     task = TaskHelper(settings, redis_instance)
 
-    def callable_func(self, msg):
-        assert (msg.data['id'] == self.test_doc['id'])
-        assert ('modified' in msg.data)
+    # callable function generator that changes a value on the local scope
+    def get_callable(self, obj):
+        def callable(msg):
+            obj['result'] = msg
+        return callable
 
     def test_helper_func(self):
         assert get_settings(('tuple_test',)) == 'tuple_test'
@@ -106,24 +114,29 @@ class TaskTests(TestCase):
             is False
         )
 
-    @mock.patch('aether.python.redis.tests.test_task.TaskTests.callable_func')
-    def test_subscribe(self, c):
-        self.task.subscribe(c, '_test*', True)
-        assert(
-            self.task.publish(self.test_doc, 'test', 'aether') == 1
-        )
-        time.sleep(0.2)
-        c.assert_called_once()
+    def test_subscribe(self):
+        obj = {}
+        callable = self.get_callable(obj)
+
+        self.task.subscribe(callable, '_test*', True)
+        self.task.add(self.test_doc, 'test', 'aether')
+        time.sleep(.2)
+        assert(isinstance(obj['result'], Task))
+        self.task.remove(self.test_doc['id'], 'test', 'aether')
+        time.sleep(.2)
+        assert(isinstance(obj['result'], TaskEvent))
 
     def test_subscribe_again(self):
-        self.task.subscribe(self.callable_func, '_test*', True)
+        obj = {}
+        callable = self.get_callable(obj)
+
+        self.task.subscribe(callable, '_test*', True)
         assert(
             self.task.publish(self.test_doc, 'test', 'aether') == 1
         )
-
         # subscribe again
         assert(
-            self.task.subscribe(self.callable_func, '_test*', False) is None
+            self.task.subscribe(callable, '_test*', False) is None
         )
 
         assert(

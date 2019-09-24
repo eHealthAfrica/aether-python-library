@@ -62,6 +62,11 @@ class Task(NamedTuple):
     data: Union[Dict, None] = None  # None is not set
 
 
+class TaskEvent(NamedTuple):
+    task_id: str
+    event: str
+
+
 class TaskHelper(object):
 
     def __init__(self, settings, redis_instance=None):
@@ -206,8 +211,8 @@ class TaskHelper(object):
         fn: Callable,
         registered_channel: str
     ) -> Callable:
-        # wraps the callback function so that the message instead of the event will be returned
-
+        # wraps the callback function so that on create/ update,
+        # the message instead of the event will be returned
         def wrapper(msg) -> None:
             LOG.debug(f'callback got message: {msg}')
             channel = msg['channel']
@@ -215,18 +220,26 @@ class TaskHelper(object):
             # where id = 00001
             channel = channel if isinstance(channel, str) else channel.decode()
             keyspace, _type, tenant, _id = channel.split(':')
-            redis_data = msg['data']
+            redis_data = msg['data'].decode()
             LOG.debug(f'Channel: {channel} received {redis_data};'
                       + f' registered on: {registered_channel}')
             res = None
-            if redis_data not in ('set', 'del'):    # pragma: no cover
+            if redis_data == 'set':    # pragma: no cover
+                key = ':'.join([_type, tenant, _id])
+                message = self.redis.get(key)
                 res = Task(
                     id=_id,
                     tenant=tenant,
                     type=_type,
-                    data=json.loads(redis_data)
+                    data=json.loads(message)
                 )
-                LOG.debug(f'ID: {_id} data: {redis_data}')
+                LOG.debug(f'ID: {_id} data: {message}')
+            else:
+                res = TaskEvent(
+                    task_id=_id,
+                    event=redis_data
+                )
+                LOG.debug(f'ID: {_id} event: {redis_data}')
             fn(res)  # On callback, hit registered function with proper data
         return wrapper
 

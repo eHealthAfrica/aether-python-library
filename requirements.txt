@@ -13,8 +13,9 @@ six>=1.12
 spavro
 
 # Test libraries
+
+birdisle
 coverage
-fakeredis
 flake8
 pytest
 pytest-runner
