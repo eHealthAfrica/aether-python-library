@@ -114,6 +114,32 @@ class TaskTests(TestCase):
             is False
         )
 
+    def test_add_mt_list_all(self):
+        self.task.add(self.test_doc, 'mappings', 'aether')
+        assert(
+            len(self.task.get_keys('_map*')) == 1
+        )
+        self.task.add(self.test_doc, 'mappings', 'other-tenant')
+        assert(
+            len(self.task.get_keys('_map*')) == 2
+        )
+
+        with self.assertRaises(ValueError):
+            list(self.task.list('*', '*'))
+
+        with self.assertRaises(ValueError):
+            list(self.task.list('mappings', '*'))
+
+        assert(len(list(self.task.list('mappings'))) == 2)
+        assert (
+            self.task.remove(self.test_doc['id'], 'mappings', 'aether')
+            is True
+        )
+        assert (
+            self.task.remove(self.test_doc['id'], 'mappings', 'other-tenant')
+            is True
+        )
+
     def test_subscribe(self):
         obj = {}
         callable = self.get_callable(obj)

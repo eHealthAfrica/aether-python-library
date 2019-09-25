@@ -152,11 +152,18 @@ class TaskHelper(object):
 
     def list(
         self,
-        type: str,
-        tenant: str
+        _type: str,
+        tenant: str = None  # No tenants is _all_ tenants
     ) -> Iterable[str]:
         # ids of matching assets as a generator
-        key_identifier = '_{type}:{tenant}:*'.format(type=type, tenant=tenant)
+        if '*' in _type:
+            raise ValueError('Type may not include a * wild card.')
+        if tenant:
+            if '*' in tenant:
+                raise ValueError('Tenant may not include a * wild card.')
+            key_identifier = f'_{_type}:{tenant}:*'
+        else:
+            key_identifier = f'_{_type}:*'
         for i in self.redis.scan_iter(key_identifier):
             p = i.decode('utf-8').split(key_identifier[:-1])
             yield p[1]
