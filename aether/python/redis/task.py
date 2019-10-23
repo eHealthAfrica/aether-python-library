@@ -229,7 +229,7 @@ class TaskHelper(object):
             # where id = 00001
             channel = channel if isinstance(channel, str) else channel.decode()
             keyspace, _type, tenant, _id = channel.split(':')
-            redis_data = msg['data'].decode()
+            redis_data = msg['data'] if isinstance(msg['data'], str) else msg['data'].decode()
             LOG.debug(f'Channel: {channel} received {redis_data};'
                       + f' registered on: {registered_channel}')
             res = None
