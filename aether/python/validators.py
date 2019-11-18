@@ -17,9 +17,10 @@
 # under the License.
 
 import collections
-import gettext
 import json
 import uuid
+
+from gettext import gettext as _
 
 from jsonschema.validators import Draft4Validator
 from aether.python.exceptions import ValidationError
@@ -29,8 +30,8 @@ from spavro.schema import parse, SchemaParseException
 
 from aether.python.avro import tools
 
-_ = gettext.gettext
 
+MESSAGE_REQUIRED_RECORD = _('A schema is required to be of type "record"')
 MESSAGE_REQUIRED_ID = _('A schema is required to have a field "id" of type "string"')
 MESSAGE_NOT_OBJECT = _('Value {} is not an Object')
 MESSAGE_NOT_UUID = _('Entity id "{}" is not a valid uuid')
@@ -105,6 +106,9 @@ def _has_valid_id_field(schema):
             return False
         schema = schemas[0]
 
+    if schema.get('type') != 'record':
+        return False
+
     for field in schema.get('fields', []):
         if field.get('name', None) == 'id':
             return field.get('type', None) == 'string'
@@ -121,10 +125,21 @@ def validate_id_field(schema):
         raise ValidationError(MESSAGE_REQUIRED_ID)
 
 
+def validate_schema_input_definition(value):
+    '''
+    Attempt to parse ``value`` into an Avro schema and checks if it is
+    of type "record".
+    Raise ``ValidationError`` on error.
+    '''
+    validate_avro_schema(value)
+    if not isinstance(value, dict) or value.get('type') != 'record':
+        raise ValidationError(MESSAGE_REQUIRED_RECORD)
+
+
 def validate_schema_definition(value):
     '''
     Attempt to parse ``value`` into an Avro schema and checks if it has
-    a top-level field "id" of type "string.
+    a top-level field "id" of type "string".
     Raise ``ValidationError`` on error.
     '''
     validate_avro_schema(value)

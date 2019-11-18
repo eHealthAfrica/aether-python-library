@@ -22,19 +22,17 @@ function from the official avro python library. See class docstring
 for details.
 '''
 
-import gettext
 import random
 import re
 
 from collections import namedtuple
 from copy import deepcopy
+from gettext import gettext as _
 from os import urandom
 from string import ascii_letters
 from uuid import uuid4
 
 from aether.python.constants import NAMESPACE
-
-_ = gettext.gettext
 
 
 # Constants used by AvroValidator to distinguish between avro types

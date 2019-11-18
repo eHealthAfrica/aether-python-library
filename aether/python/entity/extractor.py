@@ -18,12 +18,13 @@
 
 import collections
 import fnmatch
-import gettext
 import json
 import logging
 import re
 import uuid
 import os
+
+from gettext import gettext as _
 
 from eha_jsonpath import parse as eha_jsonpath_parse
 
@@ -33,7 +34,6 @@ from aether.python.utils import object_contains
 logger = logging.getLogger(__name__)
 logger.setLevel(os.environ.get('LOGGING_LEVEL', 'ERROR'))
 
-_ = gettext.gettext
 
 Entity = collections.namedtuple(
     'Entity',

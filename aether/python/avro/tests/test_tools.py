@@ -643,8 +643,8 @@ class TestAvroValidator(TestCase):
         schema = Schema('not-an-avro-type')
         with self.assertRaises(AvroValidationException) as err:
             validate(schema, 2)
-        message = str(err.exception)
-        self.assertIn('Could not validate', message)
+            message = str(err.exception)
+            self.assertIn('Could not validate', message)
 
 
 class TestAvroPassthrough(TestCase):
