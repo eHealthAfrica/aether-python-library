@@ -38,12 +38,12 @@ setup(
     long_description_content_type='text/markdown',
 
     keywords=[
-        'redis',
+        'aether',
         'entity',
         'extraction',
+        'redis',
         'utils',
         'validators',
-        'aether',
     ],
 
     url='https://github.com/eHealthAfrica/aether-python-library/',
@@ -53,15 +53,15 @@ setup(
 
     python_requires='>=3.6',
     install_requires=[
-        'redis',
-        'requests',
         'eha_jsonpath',
         'jsonschema',
-        'requests',
+        'redis',
+        'requests[security]',
         'spavro',
     ],
     extras_require={
         'test': [
+            'birdisle',
             'coverage',
             'flake8',
             'flake8-quotes',

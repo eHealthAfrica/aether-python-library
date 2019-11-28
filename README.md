@@ -19,23 +19,23 @@ This library requires **Python 3.6** and above.
 Python libraries:
 
 - [eha-jsonpath](https://github.com/eHealthAfrica/jsonpath-extensions/)
-  Provides new Extensions to the jsonpath_ng python library to provide commonly requested functions
+  Provides new Extensions to the jsonpath_ng python library to provide commonly requested functions.
 - [jsonschema](https://github.com/Julian/jsonschema)
-  An implementation of JSON Schema validation for Python
+  An implementation of JSON Schema validation for Python.
 - [redis](https://github.com/andymccurdy/redis-py)
-  Python client for Redis key-value store
+  Python client for Redis key-value store.
 - [requests](https://2.python-requests.org//en/master/)
   HTTP for Humans.
 - [spavro](http://github.com/pluralsight/spavro)
-  An Avro library, Spavro is a (sp)eedier avro implementation using Cython
+  An Avro library, Spavro is a (sp)eedier avro implementation using Cython.
 
 Extra dependencies (based on settings):
 
 - **test**
+  - [birdisle](https://github.com/bmerry/birdisle)
+    A modified version of redis that runs as a library inside another process.
   - [coverage](https://coverage.readthedocs.io/)
     A tool for measuring code coverage of Python programs.
-  - [fakeredis](https://github.com/jamesls/fakeredis)
-    Fake implementation of redis API for testing purposes.
   - [flake8](http://flake8.pycqa.org/en/latest/)
     Tool For Style Guide Enforcement.
   - [flake8-quotes](https://github.com/zheller/flake8-quotes)
@@ -125,7 +125,7 @@ It makes available a number of `CRUD` redis operation which include but not limi
 
 #### Usage
 
-```
+```python
 from aether.python.redis.task import TaskHelper
 
 REDIS_TASK = TaskHelper(settings, redis_instance)
