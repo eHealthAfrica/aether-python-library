@@ -709,3 +709,1126 @@ EXAMPLE_PARTIAL_WILDCARDS = {
         }
     ]
 }
+
+EXAMPLE_SIMPLE_SCHEMA = {
+    'name': 'rapidtest',
+    'doc': 'Rapid Test - Start (id: rapidtest_start, version: 2019012807)',
+    'type': 'record',
+    'fields': [
+        {
+            'default': 'rapidtest_start',
+            'doc': 'xForm ID',
+            'name': '_id',
+            'namespace': 'Rapidtest_Start_2019012807',
+            'type': [
+                'null',
+                'string'
+            ]
+        },
+        {
+            'default': '2019012807',
+            'doc': 'xForm version',
+            'name': '_version',
+            'namespace': 'Rapidtest_Start_2019012807',
+            'type': [
+                'null',
+                'string'
+            ]
+        },
+        {
+            'name': 'start',
+            'namespace': 'Rapidtest_Start_2019012807',
+            'type': [
+                'null',
+                'string'
+            ]
+        },
+        {
+            'name': 'end',
+            'namespace': 'Rapidtest_Start_2019012807',
+            'type': [
+                'null',
+                'string'
+            ]
+        },
+        {
+            'doc': 'Test Name',
+            'name': 'Test_Name',
+            'namespace': 'Rapidtest_Start_2019012807',
+            'type': [
+                'null',
+                'string'
+            ]
+        },
+        {
+            'doc': 'Scan QR Code',
+            'name': 'QR_Code',
+            'namespace': 'Rapidtest_Start_2019012807',
+            'type': [
+                'null',
+                'string'
+            ]
+        },
+        {
+            'doc': 'Patient Name',
+            'name': 'Patient_Name',
+            'namespace': 'Rapidtest_Start_2019012807',
+            'type': [
+                'null',
+                'string'
+            ]
+        },
+        {
+            'doc': 'Patient Age',
+            'name': 'Patient_Age',
+            'namespace': 'Rapidtest_Start_2019012807',
+            'type': [
+                'null',
+                'int'
+            ]
+        },
+        {
+            'doc': 'Location',
+            'name': 'Location',
+            'namespace': 'Rapidtest_Start_2019012807',
+            'type': [
+                'null',
+                {
+                    'doc': 'Location',
+                    'fields': [
+                        {
+                            'doc': 'latitude',
+                            'name': 'latitude',
+                            'namespace': 'Rapidtest_Start_2019012807.Location',
+                            'type': [
+                                'null',
+                                'float'
+                            ]
+                        },
+                        {
+                            'doc': 'longitude',
+                            'name': 'longitude',
+                            'namespace': 'Rapidtest_Start_2019012807.Location',
+                            'type': [
+                                'null',
+                                'float'
+                            ]
+                        },
+                        {
+                            'doc': 'altitude',
+                            'name': 'altitude',
+                            'namespace': 'Rapidtest_Start_2019012807.Location',
+                            'type': [
+                                'null',
+                                'float'
+                            ]
+                        },
+                        {
+                            'doc': 'accuracy',
+                            'name': 'accuracy',
+                            'namespace': 'Rapidtest_Start_2019012807.Location',
+                            'type': [
+                                'null',
+                                'float'
+                            ]
+                        }
+                    ],
+                    'name': 'Location',
+                    'namespace': 'Rapidtest_Start_2019012807',
+                    'type': 'record'
+                }
+            ]
+        },
+        {
+            'name': 'Encounter_Date_Time',
+            'namespace': 'Rapidtest_Start_2019012807',
+            'type': [
+                'null',
+                'string'
+            ]
+        },
+        {
+            'name': 'meta',
+            'namespace': 'Rapidtest_Start_2019012807',
+            'type': [
+                'null',
+                {
+                    'fields': [
+                        {
+                            'name': 'instanceID',
+                            'namespace': 'Rapidtest_Start_2019012807.meta',
+                            'type': [
+                                'null',
+                                'string'
+                            ]
+                        }
+                    ],
+                    'name': 'meta',
+                    'namespace': 'Rapidtest_Start_2019012807',
+                    'type': 'record'
+                }
+            ]
+        },
+        {
+            'doc': 'UUID',
+            'name': 'id',
+            'type': 'string'
+        }
+    ]
+}
+
+
+EXAMPLE_ANNOTATED_SCHEMA = {
+    'doc': 'MySurvey (title: HS OSM Gather Test id: gth_hs_test, version: 2)',
+    'name': 'MySurvey',
+    'type': 'record',
+    'fields': [
+        {
+            'doc': 'xForm ID',
+            'name': '_id',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey'
+        },
+        {
+            'doc': 'xForm version',
+            'name': '_version',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_default_visualization': 'undefined'
+        },
+        {
+            'doc': 'Surveyor',
+            'name': '_surveyor',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey'
+        },
+        {
+            'doc': 'Submitted at',
+            'name': '_submitted_at',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'dateTime'
+        },
+        {
+            'name': '_start',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'dateTime'
+        },
+        {
+            'name': 'timestamp',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'dateTime'
+        },
+        {
+            'name': 'username',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'string'
+        },
+        {
+            'name': 'source',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'string'
+        },
+        {
+            'name': 'osm_id',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'string'
+        },
+        {
+            'doc': 'Name of Facility',
+            'name': 'name',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'string'
+        },
+        {
+            'doc': 'Address',
+            'name': 'addr_full',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'string'
+        },
+        {
+            'doc': 'Phone Number',
+            'name': 'contact_number',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'string'
+        },
+        {
+            'doc': 'Facility Operator Name',
+            'name': 'operator',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'string'
+        },
+        {
+            'doc': 'Operator Type',
+            'name': 'operator_type',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_default_visualization': 'pie',
+            '@aether_lookup': [
+                {
+                    'label': 'Public',
+                    'value': 'public'
+                },
+                {
+                    'label': 'Private',
+                    'value': 'private'
+                },
+                {
+                    'label': 'Community',
+                    'value': 'community'
+                },
+                {
+                    'label': 'Religious',
+                    'value': 'religious'
+                },
+                {
+                    'label': 'Government',
+                    'value': 'government'
+                },
+                {
+                    'label': 'NGO',
+                    'value': 'ngo'
+                },
+                {
+                    'label': 'Combination',
+                    'value': 'combination'
+                }
+            ],
+            '@aether_extended_type': 'select1'
+        },
+        {
+            'doc': 'Facility Location',
+            'name': 'geometry',
+            'type': [
+                'null',
+                {
+                    'doc': 'Facility Location',
+                    'name': 'geometry',
+                    'type': 'record',
+                    'fields': [
+                        {
+                            'doc': 'latitude',
+                            'name': 'latitude',
+                            'type': [
+                                'null',
+                                'float'
+                            ],
+                            'namespace': 'MySurvey.geometry'
+                        },
+                        {
+                            'doc': 'longitude',
+                            'name': 'longitude',
+                            'type': [
+                                'null',
+                                'float'
+                            ],
+                            'namespace': 'MySurvey.geometry'
+                        },
+                        {
+                            'doc': 'altitude',
+                            'name': 'altitude',
+                            'type': [
+                                'null',
+                                'float'
+                            ],
+                            'namespace': 'MySurvey.geometry'
+                        },
+                        {
+                            'doc': 'accuracy',
+                            'name': 'accuracy',
+                            'type': [
+                                'null',
+                                'float'
+                            ],
+                            'namespace': 'MySurvey.geometry'
+                        }
+                    ],
+                    'namespace': 'MySurvey',
+                    '@aether_extended_type': 'geopoint'
+                }
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'geopoint'
+        },
+        {
+            'doc': 'Operational Status',
+            'name': 'operational_status',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_default_visualization': 'pie',
+            '@aether_lookup': [
+                {
+                    'label': 'Operational',
+                    'value': 'operational'
+                },
+                {
+                    'label': 'Non Operational',
+                    'value': 'non_operational'
+                },
+                {
+                    'label': 'Unknown',
+                    'value': 'unknown'
+                }
+            ],
+            '@aether_extended_type': 'select1'
+        },
+        {
+            'doc': 'When is the facility open?',
+            'name': '_opening_hours_type',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_lookup': [
+                {
+                    'label': 'Pick the days of the week open and enter hours for each day',
+                    'value': 'oh_select'
+                },
+                {
+                    'label': 'Only open on weekdays with the same hours every day.',
+                    'value': 'oh_weekday'
+                },
+                {
+                    'label': '24/7 - All day, every day',
+                    'value': 'oh_24_7'
+                },
+                {
+                    'label': 'Type in OSM String by hand (Advanced Option)',
+                    'value': 'oh_advanced'
+                },
+                {
+                    'label': 'I do not know the operating hours',
+                    'value': 'oh_unknown'
+                }
+            ],
+            '@aether_extended_type': 'select1'
+        },
+        {
+            'doc': 'Which days is this facility open?',
+            'name': '_open_days',
+            'type': [
+                'null',
+                {
+                    'type': 'array',
+                    'items': 'string'
+                }
+            ],
+            'namespace': 'MySurvey',
+            '@aether_lookup': [
+                {
+                    'label': 'Monday',
+                    'value': 'Mo'
+                },
+                {
+                    'label': 'Tuesday',
+                    'value': 'Tu'
+                },
+                {
+                    'label': 'Wednesday',
+                    'value': 'We'
+                },
+                {
+                    'label': 'Thursday',
+                    'value': 'Th'
+                },
+                {
+                    'label': 'Friday',
+                    'value': 'Fr'
+                },
+                {
+                    'label': 'Saturday',
+                    'value': 'Sa'
+                },
+                {
+                    'label': 'Sunday',
+                    'value': 'Su'
+                },
+                {
+                    'label': 'Public Holidays',
+                    'value': 'PH'
+                }
+            ],
+            '@aether_extended_type': 'select'
+        },
+        {
+            'doc': 'Open hours by day of the week',
+            'name': '_dow_group',
+            'type': [
+                'null',
+                {
+                    'doc': 'Open hours by day of the week',
+                    'name': '_dow_group',
+                    'type': 'record',
+                    'fields': [
+                        {
+                            'doc': 'Enter open hours for each day:',
+                            'name': '_hours_note',
+                            'type': [
+                                'null',
+                                'string'
+                            ],
+                            'namespace': 'MySurvey._dow_group',
+                            '@aether_extended_type': 'string'
+                        },
+                        {
+                            'doc': 'Monday open hours',
+                            'name': '_mon_hours',
+                            'type': [
+                                'null',
+                                'string'
+                            ],
+                            'namespace': 'MySurvey._dow_group',
+                            '@aether_extended_type': 'string'
+                        },
+                        {
+                            'doc': 'Tuesday open hours',
+                            'name': '_tue_hours',
+                            'type': [
+                                'null',
+                                'string'
+                            ],
+                            'namespace': 'MySurvey._dow_group',
+                            '@aether_extended_type': 'string'
+                        },
+                        {
+                            'doc': 'Wednesday open hours',
+                            'name': '_wed_hours',
+                            'type': [
+                                'null',
+                                'string'
+                            ],
+                            'namespace': 'MySurvey._dow_group',
+                            '@aether_extended_type': 'string'
+                        },
+                        {
+                            'doc': 'Thursday open hours',
+                            'name': '_thu_hours',
+                            'type': [
+                                'null',
+                                'string'
+                            ],
+                            'namespace': 'MySurvey._dow_group',
+                            '@aether_extended_type': 'string'
+                        },
+                        {
+                            'doc': 'Friday open hours',
+                            'name': '_fri_hours',
+                            'type': [
+                                'null',
+                                'string'
+                            ],
+                            'namespace': 'MySurvey._dow_group',
+                            '@aether_extended_type': 'string'
+                        },
+                        {
+                            'doc': 'Saturday open hours',
+                            'name': '_sat_hours',
+                            'type': [
+                                'null',
+                                'string'
+                            ],
+                            'namespace': 'MySurvey._dow_group',
+                            '@aether_extended_type': 'string'
+                        },
+                        {
+                            'doc': 'Sunday open hours',
+                            'name': '_sun_hours',
+                            'type': [
+                                'null',
+                                'string'
+                            ],
+                            'namespace': 'MySurvey._dow_group',
+                            '@aether_extended_type': 'string'
+                        },
+                        {
+                            'doc': 'Public Holiday open hours',
+                            'name': '_ph_hours',
+                            'type': [
+                                'null',
+                                'string'
+                            ],
+                            'namespace': 'MySurvey._dow_group',
+                            '@aether_extended_type': 'string'
+                        },
+                        {
+                            'name': '_select_hours',
+                            'type': [
+                                'null',
+                                'string'
+                            ],
+                            'namespace': 'MySurvey._dow_group',
+                            '@aether_extended_type': 'string'
+                        }
+                    ],
+                    'namespace': 'MySurvey',
+                    '@aether_extended_type': 'group'
+                }
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'group'
+        },
+        {
+            'doc': 'Enter weekday hours',
+            'name': '_weekday_hours',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'string'
+        },
+        {
+            'doc': 'OSM:opening_hours',
+            'name': '_advanced_hours',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'string'
+        },
+        {
+            'name': 'opening_hours',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'string'
+        },
+        {
+            'doc': 'Verify the open hours are correct or go back and fix:',
+            'name': '_disp_hours',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'string'
+        },
+        {
+            'doc': 'Facility Category',
+            'name': 'amenity',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_lookup': [
+                {
+                    'label': 'Clinic',
+                    'value': 'clinic'
+                },
+                {
+                    'label': 'Doctors',
+                    'value': 'doctors'
+                },
+                {
+                    'label': 'Hospital',
+                    'value': 'hospital'
+                },
+                {
+                    'label': 'Dentist',
+                    'value': 'dentist'
+                },
+                {
+                    'label': 'Pharmacy',
+                    'value': 'pharmacy'
+                }
+            ],
+            '@aether_extended_type': 'select1'
+        },
+        {
+            'doc': 'Available Services',
+            'name': 'healthcare',
+            'type': [
+                'null',
+                {
+                    'type': 'array',
+                    'items': 'string'
+                }
+            ],
+            'namespace': 'MySurvey',
+            '@aether_lookup': [
+                {
+                    'label': 'Doctor',
+                    'value': 'doctor'
+                },
+                {
+                    'label': 'Pharmacy',
+                    'value': 'pharmacy'
+                },
+                {
+                    'label': 'Hospital',
+                    'value': 'hospital'
+                },
+                {
+                    'label': 'Clinic',
+                    'value': 'clinic'
+                },
+                {
+                    'label': 'Dentist',
+                    'value': 'dentist'
+                },
+                {
+                    'label': 'Physiotherapist',
+                    'value': 'physiotherapist'
+                },
+                {
+                    'label': 'Alternative',
+                    'value': 'alternative'
+                },
+                {
+                    'label': 'Laboratory',
+                    'value': 'laboratory'
+                },
+                {
+                    'label': 'Optometrist',
+                    'value': 'optometrist'
+                },
+                {
+                    'label': 'Rehabilitation',
+                    'value': 'rehabilitation'
+                },
+                {
+                    'label': 'Blood donation',
+                    'value': 'blood_donation'
+                },
+                {
+                    'label': 'Birthing center',
+                    'value': 'birthing_center'
+                }
+            ],
+            '@aether_extended_type': 'select'
+        },
+        {
+            'doc': 'Specialities',
+            'name': 'speciality',
+            'type': [
+                'null',
+                {
+                    'type': 'array',
+                    'items': 'string'
+                }
+            ],
+            'namespace': 'MySurvey',
+            '@aether_lookup': [
+                {
+                    'label': 'xx',
+                    'value': 'xx'
+                }
+            ],
+            '@aether_extended_type': 'select'
+        },
+        {
+            'doc': 'Speciality medical equipment available',
+            'name': 'health_amenity_type',
+            'type': [
+                'null',
+                {
+                    'type': 'array',
+                    'items': 'string'
+                }
+            ],
+            'namespace': 'MySurvey',
+            '@aether_lookup': [
+                {
+                    'label': 'Ultrasound',
+                    'value': 'ultrasound'
+                },
+                {
+                    'label': 'MRI',
+                    'value': 'mri'
+                },
+                {
+                    'label': 'X-Ray',
+                    'value': 'x_ray'
+                },
+                {
+                    'label': 'Dialysis',
+                    'value': 'dialysis'
+                },
+                {
+                    'label': 'Operating Theater',
+                    'value': 'operating_theater'
+                },
+                {
+                    'label': 'Laboratory',
+                    'value': 'laboratory'
+                },
+                {
+                    'label': 'Imaging Equipment',
+                    'value': 'imaging_equipment'
+                },
+                {
+                    'label': 'Intensive Care Unit',
+                    'value': 'intensive_care_unit'
+                },
+                {
+                    'label': 'Emergency Department',
+                    'value': 'emergency_department'
+                }
+            ],
+            '@aether_extended_type': 'select'
+        },
+        {
+            'doc': 'Does this facility provide Emergency Services?',
+            'name': 'emergency',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_lookup': [
+                {
+                    'label': 'Yes',
+                    'value': 'yes'
+                },
+                {
+                    'label': 'No',
+                    'value': 'no'
+                }
+            ],
+            '@aether_extended_type': 'select1'
+        },
+        {
+            'doc': 'Does the pharmacy dispense prescription medication?',
+            'name': 'dispensing',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_lookup': [
+                {
+                    'label': 'Yes',
+                    'value': 'yes'
+                },
+                {
+                    'label': 'No',
+                    'value': 'no'
+                }
+            ],
+            '@aether_extended_type': 'select1'
+        },
+        {
+            'doc': 'Number of Beds',
+            'name': 'beds',
+            'type': [
+                'null',
+                'int'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'int'
+        },
+        {
+            'doc': 'Number of Doctors',
+            'name': 'staff_doctors',
+            'type': [
+                'null',
+                'int'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'int'
+        },
+        {
+            'doc': 'Number of Nurses',
+            'name': 'staff_nurses',
+            'type': [
+                'null',
+                'int'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'int'
+        },
+        {
+            'doc': 'Types of insurance accepted?',
+            'name': 'insurance',
+            'type': [
+                'null',
+                {
+                    'type': 'array',
+                    'items': 'string'
+                }
+            ],
+            'namespace': 'MySurvey',
+            '@aether_lookup': [
+                {
+                    'label': 'Public',
+                    'value': 'public'
+                },
+                {
+                    'label': 'Private',
+                    'value': 'private'
+                },
+                {
+                    'label': 'None',
+                    'value': 'no'
+                },
+                {
+                    'label': 'Unknown',
+                    'value': 'unknown'
+                }
+            ],
+            '@aether_extended_type': 'select'
+        },
+        {
+            'doc': 'Is this facility wheelchair accessible?',
+            'name': 'wheelchair',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_lookup': [
+                {
+                    'label': 'Yes',
+                    'value': 'yes'
+                },
+                {
+                    'label': 'No',
+                    'value': 'no'
+                }
+            ],
+            '@aether_extended_type': 'select1'
+        },
+        {
+            'doc': 'What is the source of water for this facility?',
+            'name': 'water_source',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_lookup': [
+                {
+                    'label': 'Well',
+                    'value': 'well'
+                },
+                {
+                    'label': 'Water works',
+                    'value': 'water_works'
+                },
+                {
+                    'label': 'Manual pump',
+                    'value': 'manual_pump'
+                },
+                {
+                    'label': 'Powered pump',
+                    'value': 'powered_pump'
+                },
+                {
+                    'label': 'Groundwater',
+                    'value': 'groundwater'
+                },
+                {
+                    'label': 'Rain',
+                    'value': 'rain'
+                }
+            ],
+            '@aether_extended_type': 'select1'
+        },
+        {
+            'doc': 'What is the source of power for this facility?',
+            'name': 'electricity',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_lookup': [
+                {
+                    'label': 'Power grid',
+                    'value': 'grid'
+                },
+                {
+                    'label': 'Generator',
+                    'value': 'generator'
+                },
+                {
+                    'label': 'Solar',
+                    'value': 'solar'
+                },
+                {
+                    'label': 'Other Power',
+                    'value': 'other'
+                },
+                {
+                    'label': 'No Power',
+                    'value': 'none'
+                }
+            ],
+            '@aether_extended_type': 'select1'
+        },
+        {
+            'doc': 'URL for this location (if available)',
+            'name': 'url',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'string'
+        },
+        {
+            'doc': 'In which health are is the facility located?',
+            'name': 'is_in_health_area',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'string'
+        },
+        {
+            'doc': 'In which health zone is the facility located?',
+            'name': 'is_in_health_zone',
+            'type': [
+                'null',
+                'string'
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'string'
+        },
+        {
+            'name': 'meta',
+            'type': [
+                'null',
+                {
+                    'name': 'meta',
+                    'type': 'record',
+                    'fields': [
+                        {
+                            'name': 'instanceID',
+                            'type': [
+                                'null',
+                                'string'
+                            ],
+                            'namespace': 'MySurvey.meta',
+                            '@aether_extended_type': 'string'
+                        }
+                    ],
+                    'namespace': 'MySurvey',
+                    '@aether_extended_type': 'group'
+                }
+            ],
+            'namespace': 'MySurvey',
+            '@aether_extended_type': 'group'
+        },
+        {
+            'doc': 'UUID',
+            'name': 'id',
+            'type': 'string'
+        },
+        {
+            'doc': 'Some vestigial garbage',
+            'name': '__junk',
+            'type': [
+                'null',
+                'string'
+            ]
+        }
+    ],
+    'namespace': 'org.ehealthafrica.aether.odk.xforms.Mysurvey'
+}
+
+EXAMPLE_ALL_TYPES = {
+    'name': 'AllTypes',
+    'type': 'record',
+    'fields': [
+        {
+            'name': 'test_array',
+            'type': {
+                'type': 'array',
+                'items': 'string'
+            }
+        },
+        {
+            'name': 'test_fixed',
+            'type': {
+                'type': 'fixed',
+                'size': 32,
+                'name': 'md5'
+            }
+        },
+        {
+            'name': 'test_enum',
+            'type': {
+                'name': 'TestEnum',
+                'type': 'enum',
+                'symbols': ['A', 'B', 'C']
+            }
+        },
+        {
+            'name': 'test_map',
+            'type': {
+                'type': 'map',
+                'values': 'int'
+            }
+        },
+        {'name': 'test_string', 'type': 'string'},
+        {'name': 'test_boolean', 'type': 'boolean'},
+        {'name': 'test_null', 'type': 'null'},
+        {'name': 'test_bytes', 'type': 'bytes'},
+        {'name': 'test_int', 'type': 'int'},
+        {'name': 'test_long', 'type': 'long'},
+        {'name': 'test_double', 'type': 'double'},
+        {'name': 'test_float', 'type': 'float'}
+    ],
+    'namespace': 'org.ehealthafrica.aether.example'
+}

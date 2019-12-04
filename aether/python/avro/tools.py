@@ -114,7 +114,7 @@ def random_avro(schema):
         return None
 
     if avro_type == BOOLEAN:
-        return True if random.random() > 0.5 else False
+        return random.choice([True, False])
 
     if avro_type in [BYTES, FIXED]:
         return urandom(schema.get('size', 8))
@@ -126,7 +126,7 @@ def random_avro(schema):
         return random.randint(LONG_MIN_VALUE, LONG_MAX_VALUE)
 
     if avro_type in [FLOAT, DOUBLE]:
-        return random.random() + random.randint(INT_MIN_VALUE, INT_MAX_VALUE)
+        return INT_MIN_VALUE + random.random() * (INT_MAX_VALUE - INT_MIN_VALUE)
 
     if avro_type == STRING:
         if name == 'id':
@@ -326,7 +326,10 @@ class AvroValidator(object):
 
     def validate_fixed(self, schema, datum, path):
         '''Validate ``datum`` against a 'fixed' schema.'''
-        if isinstance(datum, str) and len(datum) == schema.size:
+        _datum = datum
+        if isinstance(_datum, str):
+            _datum = datum.encode('utf-8')
+        if isinstance(_datum, bytes) and len(_datum) == schema.size:
             return True
         return self.on_error(schema, datum, path)
 

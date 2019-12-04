@@ -56,6 +56,44 @@ def merge_objects(source, target, direction):
     return result
 
 
+def replace_nested(_dict, keys, value, replace_missing=True):
+    '''
+    Puts a value into an existing structure.
+
+    _dict = {"a": {"b": []}}
+    keys = ["a", "b"]
+    value = 2
+    {"a": {"b": 2}} = replace_nested(_dict, keys, value)
+    keys = ["a", "c"]
+    # replace_missing flag allows for creation of new keys in place.
+    {"a": {"b": 2}, "c": 2} = replace_nested(_dict, keys, value, replace_missing=True)
+
+    '''
+    if len(keys) == 0:
+        raise ValueError('You must specify a path to replace')
+    elif len(keys) > 1:
+        try:
+            _dict[keys[0]] = replace_nested(
+                _dict[keys[0]],
+                keys[1:],
+                value,
+                replace_missing
+            )
+        except KeyError as ker:
+            if not replace_missing:
+                raise ker
+            _dict[keys[0]] = {}
+            _dict[keys[0]] = replace_nested(
+                _dict[keys[0]],
+                keys[1:],
+                value,
+                replace_missing
+            )
+    else:
+        _dict[keys[0]] = value
+    return _dict
+
+
 def request(*args, **kwargs):
     '''
     Executes the request call at least three times to avoid
