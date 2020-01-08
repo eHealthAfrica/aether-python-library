@@ -56,7 +56,6 @@ class TaskTests(TestCase):
     birdisle.redis.LocalSocketConnection.health_check_interval = 0
     redis_instance = birdisle.redis.StrictRedis()
     # set keyspace notifications as we do in live
-    redis_instance.config_set('notify-keyspace-events', 'KEA')
     task = TaskHelper(settings, redis_instance)
 
     # callable function generator that changes a value on the local scope
@@ -145,11 +144,12 @@ class TaskTests(TestCase):
         callable = self.get_callable(obj)
 
         self.task.subscribe(callable, '_test*', True)
+        time.sleep(.1)
         self.task.add(self.test_doc, 'test', 'aether')
-        time.sleep(.2)
+        time.sleep(.1)
         assert(isinstance(obj['result'], Task))
         self.task.remove(self.test_doc['id'], 'test', 'aether')
-        time.sleep(.2)
+        time.sleep(.1)
         assert(isinstance(obj['result'], TaskEvent))
 
     def test_subscribe_again(self):

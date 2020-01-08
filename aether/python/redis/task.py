@@ -39,7 +39,7 @@ DEFAULT_TENANT = os.environ.get('DEFAULT_REALM', 'no-tenant')
 LOG = logging.getLogger(__name__)
 LOG.setLevel(os.environ.get('LOGGING_LEVEL', 'ERROR'))
 
-KEEP_ALIVE_INTERVAL = 2
+KEEP_ALIVE_INTERVAL = 10
 
 
 def get_settings(setting):
@@ -96,13 +96,12 @@ class TaskHelper(object):
         type: str,
         tenant: str
     ) -> bool:
-        key = '_{type}:{tenant}:{_id}'.format(
-            type=type,
-            _id=task['id'],
-            tenant=tenant
-        )
+        _id = task['id']
+        key = f'_{type}:{tenant}:{_id}'
         task['modified'] = datetime.now().isoformat()
-        return self.redis.set(key, json.dumps(task, cls=UUIDEncoder))
+        res = self.redis.set(key, json.dumps(task, cls=UUIDEncoder))
+        self.notify(tenant, 'set', type, _id)
+        return res
 
     def exists(
         self,
@@ -110,11 +109,7 @@ class TaskHelper(object):
         type: str,
         tenant: str
     ) -> bool:
-        task_id = '_{type}:{tenant}:{_id}'.format(
-            type=type,
-            _id=_id,
-            tenant=tenant
-        )
+        task_id = f'_{type}:{tenant}:{_id}'
         if self.redis.exists(task_id):
             return True
         return False
@@ -125,14 +120,11 @@ class TaskHelper(object):
         type: str,
         tenant: str
     ) -> bool:
-        task_id = '_{type}:{tenant}:{_id}'.format(
-            type=type,
-            _id=_id,
-            tenant=tenant
-        )
+        task_id = f'_{type}:{tenant}:{_id}'
         res = self.redis.delete(task_id)
         if not res:
             return False
+        self.notify(tenant, 'del', type, _id)
         return True
 
     def get(
@@ -147,7 +139,7 @@ class TaskHelper(object):
     def get_by_key(self, key: str):
         task = self.redis.get(key)
         if not task:
-            raise ValueError('No task with id {key}'.format(key=key))
+            raise ValueError(f'No task with id {key}')
         return json.loads(task)
 
     def list(
@@ -165,7 +157,9 @@ class TaskHelper(object):
         else:
             key_identifier = f'_{_type}:*'
         for i in self.redis.scan_iter(key_identifier):
-            p = i.decode('utf-8').split(key_identifier[:-1])
+            if not isinstance(i, str):
+                i = i.decode('utf-8')
+            p = i.split(key_identifier[:-1])
             yield p[1]
 
     # subscription tasks
@@ -189,7 +183,8 @@ class TaskHelper(object):
         pervious_status = True
         while self.keep_alive:
             try:
-                self.pubsub.ping()
+                # don't ping the pubsub redis, it only handles sub/unsub
+                self.redis.ping()
                 current_status = True
             except Exception:   # pragma: no cover
                 current_status = False
@@ -209,7 +204,7 @@ class TaskHelper(object):
 
     def _subscribe(self, callback: Callable, pattern: str):
         LOG.debug(f'Subscribing to {pattern}')
-        keyspace = f'__keyspace@{self.redis_db}__:{pattern}'
+        keyspace = f'eventspace_{self.redis_db}__:{pattern}'
         self.pubsub.psubscribe(**{
             f'{keyspace}': self._subscriber_wrapper(callback, keyspace)
         })
@@ -254,18 +249,21 @@ class TaskHelper(object):
             fn(res)  # On callback, hit registered function with proper data
         return wrapper
 
+    def notify(self, tenant, operation, type, _id):
+        key = f'_{type}:{tenant}:{_id}'
+        channel = f'eventspace_{self.redis_db}__:{key}'
+        LOG.debug(f'Notify {channel} of {operation}')
+        return self.redis.publish(channel, operation)
+
     def publish(
         self,
         task: Dict[str, Any],
         type: str,
         tenant: str
     ):
-        key = '_{type}:{tenant}:{_id}'.format(
-            type=type,
-            _id=task['id'],
-            tenant=tenant
-        )
-        channel = f'__keyspace@{self.redis_db}__:{key}'
+        _id = task['id']
+        key = f'_{type}:{tenant}:{_id}'
+        channel = f'eventspace_{self.redis_db}__:{key}'
         LOG.debug(f'Published to {channel}')
         return self.redis.publish(channel, json.dumps(task, cls=UUIDEncoder))
 
