@@ -45,7 +45,10 @@ KEEP_ALIVE_INTERVAL = 10
 def get_settings(setting):
     if isinstance(setting, tuple):
         return setting[0]
-    return setting
+    try:
+        return setting
+    except AttributeError:
+        return None
 
 
 class UUIDEncoder(json.JSONEncoder):
