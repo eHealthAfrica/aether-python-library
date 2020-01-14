@@ -556,7 +556,7 @@ def extract_entity(entity_type, entities, requirements, data, entity_stub):
 
 def extract_entities(requirements, response_data, entity_definitions, schemas):
     data = response_data if response_data else []
-    data[ENTITY_EXTRACTION_ERRORS] = []
+    data[ENTITY_EXTRACTION_ERRORS] = data.get(ENTITY_EXTRACTION_ERRORS, [])
     # for output. Since we need to submit the extracted entities as different
     # types, it's helpful to seperate them here
     entities = {}
