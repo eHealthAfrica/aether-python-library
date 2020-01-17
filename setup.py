@@ -51,7 +51,7 @@ setup(
     author_email='aether@ehealthafrica.org',
     license='Apache2 License',
 
-    python_requires='>=3.6',
+    python_requires='>=3.7',
     install_requires=[
         'eha_jsonpath',
         'jsonschema',
