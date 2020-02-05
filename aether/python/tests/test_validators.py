@@ -28,6 +28,8 @@ from . import NESTED_ARRAY_SCHEMA
 class ValidatorsTest(TestCase):
 
     def setUp(self):
+        super(ValidatorsTest, self).setUp()
+
         self.schema = {
             'name': 'Test',
             'type': 'record',

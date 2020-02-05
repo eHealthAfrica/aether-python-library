@@ -32,7 +32,7 @@ rm -rf $EGG_INFO
 # ----------------------------------------
 # create the distribution package
 # ----------------------------------------
-python3 setup.py bdist_wheel
+python setup.py bdist_wheel
 
 # ----------------------------------------
 # remove useless content

@@ -50,6 +50,7 @@ coverage run -m pytest "${@:1}"
 # ----------------------------------------
 # print results
 # ----------------------------------------
+coverage combine --append
 coverage report
 
 # ----------------------------------------
@@ -58,3 +59,7 @@ coverage report
 coverage erase
 rm -f /var/tmp/VERSION
 rm -f /var/tmp/REVISION
+
+echo "-------------------------------------------------------------------------------"
+echo "Tests passed!"
+echo "-------------------------------------------------------------------------------"

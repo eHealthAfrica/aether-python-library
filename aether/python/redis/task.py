@@ -75,18 +75,19 @@ class TaskEvent(NamedTuple):
 class TaskHelper(object):
 
     def __init__(self, settings, redis_instance=None):
-        self.settings = settings
         self.redis_db = get_settings(settings.REDIS_DB)
-        self.redis = redis.Redis(
-            host=get_settings(settings.REDIS_HOST),
-            port=get_settings(settings.REDIS_PORT),
-            password=get_settings(settings.REDIS_PASSWORD),
-            db=self.redis_db,
-            encoding='utf-8',
-            decode_responses=True
-        )
         if redis_instance:
             self.redis = redis_instance
+        else:
+            self.redis = redis.Redis(
+                host=get_settings(settings.REDIS_HOST),
+                port=get_settings(settings.REDIS_PORT),
+                password=get_settings(settings.REDIS_PASSWORD),
+                db=self.redis_db,
+                encoding='utf-8',
+                decode_responses=True,
+            )
+
         self.pubsub = None
         self._subscribe_thread = None
         self.keep_alive = False

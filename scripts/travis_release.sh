@@ -29,7 +29,7 @@ echo "-------------------- build distribution --------------------"
 ./scripts/build.sh
 
 echo "-------------------- install twine --------------------"
-pip3 install -q --upgrade twine
+pip install -q --upgrade twine
 
 echo "-------------------- upload to PyPi repository --------------------"
 twine upload --skip-existing dist/*

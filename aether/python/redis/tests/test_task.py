@@ -17,11 +17,10 @@
 # under the License.
 
 import birdisle.redis
-import uuid
-import time
 import os
+import time
+import uuid
 from typing import NamedTuple
-
 
 from unittest import TestCase
 
@@ -48,28 +47,38 @@ WAIT_FOR_REDIS = 0.5
 
 
 class TaskTests(TestCase):
-    test_doc = {
-        'id': '000-000-000-00',
-        'name': 'test_name'
-    }
-    # work around a birdisle bug with redis 3.3 compat
-    birdisle.redis.LocalSocketConnection.health_check_interval = 0
-    redis_instance = birdisle.redis.StrictRedis()
-    # set keyspace notifications as we do in live
-    task = TaskHelper(settings, redis_instance)
+
+    def setUp(self):
+        super(TaskTests, self).setUp()
+
+        self.test_doc = {
+            'id': '000-000-000-00',
+            'name': 'test_name'
+        }
+
+        # work around a birdisle bug with redis 3.3 compat
+        birdisle.redis.LocalSocketConnection.health_check_interval = 0
+        redis_instance = birdisle.redis.StrictRedis()
+        # set keyspace notifications as we do in live
+        self.task = TaskHelper(settings, redis_instance)
+
+    def tearDown(self):
+        if self.task.keep_alive:
+            self.task.stop()
+        super(TaskTests, self).tearDown()
 
     # callable function generator that changes a value on the local scope
     def get_callable(self, obj):
-        def callable(msg):
+        def callable_fn(msg):
             obj['result'] = msg
-        return callable
+        return callable_fn
 
     def test_helper_func(self):
         assert get_settings(('tuple_test',)) == 'tuple_test'
         encoder = UUIDEncoder()
-        id = uuid.uuid4()
-        expected = str(id)
-        assert encoder.default(id) == expected
+        _id = uuid.uuid4()
+        expected = str(_id)
+        assert encoder.default(_id) == expected
 
     def test_helper_init(self):
         task = TaskHelper(settings)
@@ -141,9 +150,9 @@ class TaskTests(TestCase):
 
     def test_subscribe(self):
         obj = {}
-        callable = self.get_callable(obj)
+        callable_fn = self.get_callable(obj)
 
-        self.task.subscribe(callable, '_test*', True)
+        self.task.subscribe(callable_fn, '_test*', True)
         time.sleep(.1)
         self.task.add(self.test_doc, 'test', 'aether')
         time.sleep(.1)
@@ -154,19 +163,18 @@ class TaskTests(TestCase):
 
     def test_subscribe_again(self):
         obj = {}
-        callable = self.get_callable(obj)
+        callable_fn = self.get_callable(obj)
 
-        self.task.subscribe(callable, '_test*', True)
+        self.task.subscribe(callable_fn, '_test*', True)
         assert(
             self.task.publish(self.test_doc, 'test', 'aether') == 1
         )
         # subscribe again
         assert(
-            self.task.subscribe(callable, '_test*', False) is None
+            self.task.subscribe(callable_fn, '_test*', False) is None
         )
 
         assert(
             self.task._unsubscribe_all() is None
         )
         self.task.stop()
-        self.redis_instance = None
