@@ -1782,11 +1782,40 @@ EXAMPLE_ANNOTATED_SCHEMA = {
                 'null',
                 'string'
             ]
+        },
+        {
+            'doc': 'a mandatory date',
+            'name': 'mandatory_date',
+            'type': 'int',
+            'logicalType': 'date'
+        },
+        {
+            'doc': 'an optional datetime',
+            'name': 'optional_dt',
+            'type': [
+                'null',
+                {
+                    'type': 'long',
+                    'logicalType': 'timestamp-millis'
+                }
+            ]
         }
     ],
     'namespace': 'org.ehealthafrica.aether.odk.xforms.Mysurvey'
 }
-
+'''
+{
+            'doc': 'an optional datetime',
+            'name': 'optional_dt',
+            'type': [
+                'null',
+                {
+                    'type': 'long',
+                    'logicalType': 'datetime-millis'
+                }
+            ]
+        }
+'''
 EXAMPLE_ALL_TYPES = {
     'name': 'AllTypes',
     'type': 'record',

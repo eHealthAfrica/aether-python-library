@@ -47,6 +47,23 @@ def test__comparison_unhandled():
 
 
 @pytest.mark.unit
+def test__logical_type_handling(ComplexSchema):
+    date_node = ComplexSchema.get_node('MySurvey.mandatory_date')
+    assert(date_node.logical_type == 'date')
+    assert(date_node.optional is False)
+    dt_node = ComplexSchema.get_node('MySurvey.optional_dt')
+    assert(dt_node.logical_type == 'timestamp-millis')
+    assert(dt_node.optional is True)
+    all_logical = [i for i in ComplexSchema.find_children({'has_attr': ['logical_type']})]
+    assert(len(all_logical) == 2)
+    dt_logical = [
+        i for i in ComplexSchema.find_children(
+            {'match_attr': [{'logical_type': 'timestamp-millis'}]})
+    ]
+    assert(len(dt_logical) == 1)
+
+
+@pytest.mark.unit
 def test__comparison_nested_attr(ComplexSchema):
     a = deepcopy(ComplexSchema)
     b = deepcopy(ComplexSchema)
@@ -115,12 +132,12 @@ def test__collect_nodes_by_required(ComplexSchema):
         {'match_attr': [{'optional': False}]}
     )
     count = sum([1 for (path, node) in matches])
-    assert(count == 5)
+    assert(count == 6)
 
 
 @pytest.mark.unit
 def test__collect_nodes_by_optional(ComplexSchema):
-    expected = 53
+    expected = 54
     matches = ComplexSchema.collect_matching(
         {'match_attr': [{'optional': True}]}
     )

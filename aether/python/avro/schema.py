@@ -39,6 +39,7 @@ class Node:
     # fields we have to derive from the original
     calculated_fields = [
         'avro_type',
+        'logical_type',
         'optional'
     ]
 
@@ -117,6 +118,9 @@ class Node:
         elif isinstance(_type, dict):
             if '@aether_extended_type' in _type:
                 yield _type['@aether_extended_type']
+            if 'logicalType' in _type:
+                setattr(self, 'logical_type', _type['logicalType'])
+                yield _type['type']
             elif 'name' in _type:
                 yield f'object:{_type["name"]}'
             elif 'items' in _type:
@@ -131,6 +135,8 @@ class Node:
                 setattr(self, field, source.get(alias))
 
         __types = [i for i in self._get_avro_type(source.get('type'))]
+        if 'logicalType' in source:
+            setattr(self, 'logical_type', source['logicalType'])
         setattr(self, 'avro_type', __types)
         setattr(self, 'optional', ('null' in __types))
 
@@ -157,6 +163,9 @@ class Node:
             else:
                 for gc in grand_children:
                     name = gc.get('name')
+                    _logical_type = gc.get('logicalType')
+                    if _logical_type:
+                        self.children[f.get('name')] = Node(f)
                     if not name:  # array values, ignore them
                         continue
                     self.children[name] = Node(gc)
@@ -195,7 +204,7 @@ class Node:
                     if i:
                         yield i
 
-    def get_node(self, path):
+    def get_node(self, path) -> 'Node':
         path_parts = path.split('.')
         if len(path_parts) == 1 and path == self.name:
             return self

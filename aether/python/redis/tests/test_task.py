@@ -59,6 +59,9 @@ class TaskTests(TestCase):
         # work around a birdisle bug with redis 3.3 compat
         birdisle.redis.LocalSocketConnection.health_check_interval = 0
         redis_instance = birdisle.redis.StrictRedis()
+        setattr(birdisle.redis.LocalSocketConnection, 'username', None)
+        setattr(birdisle.redis.LocalSocketConnection, 'password', None)
+        setattr(birdisle.redis.LocalSocketConnection, 'client_name', None)
         # set keyspace notifications as we do in live
         self.task = TaskHelper(settings, redis_instance)
 

@@ -455,6 +455,11 @@ class EntityExtractorTests(TestCase):
             result = extractor.CUSTOM_JSONPATH_WILDCARD_REGEX.match(path)
             self.assertIsNone(result)
 
+    def test_find_by_jsonpath__no_match(self):
+        obj = {}
+        res = [i for i in extractor.find_by_jsonpath(obj, 'some.missing.path')]
+        assert(not res)
+
     def test_find_by_jsonpath__filter_by_prefix(self):
         obj = {
             'dose-1': {

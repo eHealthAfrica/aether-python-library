@@ -162,7 +162,10 @@ def JSP_get_basic_fields(avro_obj):
 def get_entity_definitions(mapping_definition, schemas):
     required_entities = {}
     found_entities = find_by_jsonpath(mapping_definition, 'entities[*]')
-    entities = [match.value for match in found_entities][0]
+    entities = [match.value for match in found_entities]
+    if not entities:
+        return {}
+    entities = entities[0]
     for entity_definition in entities.items():
         entity_type, file_name = entity_definition
         required_entities[entity_type] = JSP_get_basic_fields(

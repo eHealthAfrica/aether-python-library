@@ -19,6 +19,7 @@
 import collections
 import json
 import uuid
+from typing import (Any, Dict)
 
 from gettext import gettext as _
 
@@ -203,7 +204,10 @@ def validate_avro(schema, datum):
     return errors
 
 
-def validate_entities(entities, schemas):
+def validate_entities(
+    entities: Dict[str, Any],
+    schemas: Dict[str, Any]
+):
     validation_errors = []
     validated_entities = collections.defaultdict(list)
     for entity_name, entity_payloads in entities.items():
