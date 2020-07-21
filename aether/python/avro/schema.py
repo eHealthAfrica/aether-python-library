@@ -148,6 +148,9 @@ class Node:
         return False
 
     def parse_children(self, source: Mapping[Any, Any]):
+        # node is a mandatory record containing sub-fields
+        if isinstance(source.get('type'), dict):
+            self.parse_children(source.get('type'))
         fields = source.get('fields', [])
         for f in fields:
             self.has_children = True

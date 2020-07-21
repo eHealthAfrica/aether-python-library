@@ -167,3 +167,14 @@ def test__collect_nodes_by_criteria__fail(ComplexSchema):
     )
     count = sum([1 for (path, node) in matches])
     assert(count == 0)
+
+
+@pytest.mark.unit
+def test__process_autogen_schema_no_union_nested(AutoSchema):
+    # ensure that nested records are processed properly.
+    # I.E. Auto0.geo.latitude should be present
+    matches = AutoSchema.collect_matching(
+        {'match_attr': [{'name': 'latitude'}]}
+    )
+    count = sum([1 for (path, node) in matches])
+    assert(count == 1)

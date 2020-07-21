@@ -878,6 +878,156 @@ EXAMPLE_SIMPLE_SCHEMA = {
 }
 
 
+EXAMPLE_AUTOGEN_SCHEMA = {
+    'type': 'record',
+    'fields': [
+        {
+            'name': 'start',
+            'type': 'string'
+        },
+        {
+            'name': 'end',
+            'type': 'string'
+        },
+        {
+            'name': 'today',
+            'type': 'string'
+        },
+        {
+            'name': 'deviceid',
+            'type': 'string'
+        },
+        {
+            'name': 'phonenumber',
+            'type': 'None'
+        },
+        {
+            'name': 'note_start',
+            'type': 'None'
+        },
+        {
+            'name': 'acknowledge_intro',
+            'type': 'string'
+        },
+        {
+            'name': 'residents_module',
+            'type': {
+                'type': 'record',
+                'fields': [
+                    {
+                        'name': 'supervisor_name',
+                        'type': 'string'
+                    },
+                    {
+                        'name': 'enumerator',
+                        'type': 'string'
+                    },
+                    {
+                        'name': 'cluster',
+                        'type': 'string'
+                    },
+                    {
+                        'name': 'respondent_name',
+                        'type': 'string'
+                    },
+                    {
+                        'name': 'gender',
+                        'type': 'string'
+                    },
+                    {
+                        'name': 'age',
+                        'type': 'int'
+                    },
+                    {
+                        'name': 'connected_discos_supplied',
+                        'type': 'string'
+                    },
+                    {
+                        'name': 'use_alternative_power',
+                        'type': 'string'
+                    },
+                    {
+                        'name': 'largest_source_noise',
+                        'type': 'string'
+                    },
+                    {
+                        'name': 'wish_to_relocate',
+                        'type': 'string'
+                    },
+                    {
+                        'name': 'why_would_you_choose_to_relocat',
+                        'type': 'string'
+                    },
+                    {
+                        'name': 'common_safety_concerns_in_the_market',
+                        'type': 'string'
+                    },
+                    {
+                        'name': 'comments',
+                        'type': 'string'
+                    }
+                ],
+                'name': 'Auto_1'
+            }
+        },
+        {
+            'name': 'pic',
+            'type': 'string'
+        },
+        {
+            'name': 'geo',
+            'type': {
+                'type': 'record',
+                'fields': [
+                    {
+                        'name': 'latitude',
+                        'type': 'float'
+                    },
+                    {
+                        'name': 'longitude',
+                        'type': 'float'
+                    },
+                    {
+                        'name': 'altitude',
+                        'type': 'float'
+                    },
+                    {
+                        'name': 'accuracy',
+                        'type': 'float'
+                    }
+                ],
+                'name': 'Auto_2'
+            }
+        },
+        {
+            'name': 'meta',
+            'type': {
+                'type': 'record',
+                'fields': [
+                    {
+                        'name': 'instanceID',
+                        'type': 'string'
+                    }
+                ],
+                'name': 'Auto_3'
+            }
+        },
+        {
+            'name': 'id',
+            'type': 'string'
+        },
+        {
+            'name': 'es_reserved__id',
+            'type': 'string'
+        },
+        {
+            'name': 'es_reserved__version',
+            'type': 'string'
+        }
+    ],
+    'name': 'Auto_0'
+}
+
 EXAMPLE_ANNOTATED_SCHEMA = {
     'doc': 'MySurvey (title: HS OSM Gather Test id: gth_hs_test, version: 2)',
     'name': 'MySurvey',
@@ -1803,19 +1953,7 @@ EXAMPLE_ANNOTATED_SCHEMA = {
     ],
     'namespace': 'org.ehealthafrica.aether.odk.xforms.Mysurvey'
 }
-'''
-{
-            'doc': 'an optional datetime',
-            'name': 'optional_dt',
-            'type': [
-                'null',
-                {
-                    'type': 'long',
-                    'logicalType': 'datetime-millis'
-                }
-            ]
-        }
-'''
+
 EXAMPLE_ALL_TYPES = {
     'name': 'AllTypes',
     'type': 'record',

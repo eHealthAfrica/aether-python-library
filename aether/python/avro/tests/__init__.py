@@ -20,12 +20,19 @@ import pytest
 
 from aether.python.tests import (
     EXAMPLE_ALL_TYPES,
-    EXAMPLE_SIMPLE_SCHEMA,
-    EXAMPLE_ANNOTATED_SCHEMA
+    EXAMPLE_ANNOTATED_SCHEMA,
+    EXAMPLE_AUTOGEN_SCHEMA,
+    EXAMPLE_SIMPLE_SCHEMA
 )
 
 from aether.python.avro.schema import Node
 from aether.python.avro.generation import SampleGenerator
+
+
+@pytest.mark.unit
+@pytest.fixture(scope='module')
+def AutoSchema():
+    return Node(EXAMPLE_AUTOGEN_SCHEMA)
 
 
 @pytest.mark.unit
