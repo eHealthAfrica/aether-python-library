@@ -37,7 +37,7 @@ logger.setLevel(os.environ.get('LOGGING_LEVEL', 'ERROR'))
 
 Entity = collections.namedtuple(
     'Entity',
-    ['payload', 'schemadecorator_name', 'status'],
+    ['id', 'payload', 'schemadecorator_name', 'status'],
 )
 
 ENTITY_EXTRACTION_ERRORS = 'aether_errors'
@@ -45,7 +45,7 @@ ENTITY_EXTRACTION_ENRICHMENT = 'aether_extractor_enrichment'
 
 # RegEx for jsonpaths containing a partial wildcard as a key:
 # $.path.to[*].key_* where the matching path might be $.path.to[1].key_1
-# or with invertes position:
+# or with inverted position:
 # $.path.key_*.to[*].field for $.path.key_27.to[1].field
 CUSTOM_JSONPATH_WILDCARD_REGEX = re.compile(
     r'(\$)?(\.)?([a-zA-Z0-9_-]*(\[.*\])*\.)?[a-zA-Z0-9_-]+\*')
@@ -138,7 +138,7 @@ def find_by_jsonpath(obj, path):
 
         # Perform an standard jsonpath search.
         matches = CachedParser.find(standard_jsonpath, obj)
-        # filter matching jsonpathes for adherence to partial wildpath
+        # filter matching jsonpaths for adherence to partial wildpath
         matching_paths = fnmatch.filter(
             [str(i.full_path) for i in matches], wild_path)
         return [i for i in matches if str(i.full_path) in matching_paths]
@@ -421,7 +421,7 @@ def put_in_array(arr, idx, val):
 def resolve_source_reference(path, entities, entity_name, i, field, data):
     # called via normal jsonpath as source
     # is NOT defferable as all source data should be present at extractor start
-    # assignes values directly to entities within function and return new offset value (i)
+    # assigns values directly to entities within function and return new offset value (i)
     matches = find_by_jsonpath(data, path)
     if not matches:
         nest_object(entities[entity_name][i], field, None)
@@ -561,7 +561,7 @@ def extract_entities(requirements, response_data, entity_definitions, schemas):
     data = response_data if response_data else []
     data[ENTITY_EXTRACTION_ERRORS] = data.get(ENTITY_EXTRACTION_ERRORS, [])
     # for output. Since we need to submit the extracted entities as different
-    # types, it's helpful to seperate them here
+    # types, it's helpful to separate them here
     entities = {}
     # entity names that have requirements
     required_entities = requirements.keys()
@@ -619,6 +619,7 @@ def extract_create_entities(submission_payload, mapping_definition, schemas):
     for schemadecorator_name, entity_payloads in entity_types.items():
         for entity_payload in entity_payloads:
             entity = Entity(
+                id=entity_payload['id'],
                 payload=entity_payload,
                 schemadecorator_name=schemadecorator_name,
                 status='Publishable',

@@ -352,6 +352,7 @@ class EntityExtractorTests(TestCase):
         for entity in entities:
             self.assertIn(entity.schemadecorator_name, schemas.keys())
             self.assertEqual(entity.status, 'Publishable')
+            self.assertEqual(entity.id, entity.payload['id'])
 
     def test_extract_create_entities__validation_error(self):
         '''
