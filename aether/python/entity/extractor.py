@@ -51,8 +51,7 @@ CUSTOM_JSONPATH_WILDCARD_REGEX = re.compile(
     r'(\$)?(\.)?([a-zA-Z0-9_-]*(\[.*\])*\.)?[a-zA-Z0-9_-]+\*')
 # RegEX to split off array accessors in keynames
 # from arr[inx] matches [arr, idx]
-ARRAY_ACCESSOR_REGEX = re.compile(
-    r'[^\[\]]+')
+ARRAY_ACCESSOR_REGEX = re.compile(r'[^\[\]]+')
 
 # RegEx for the part of a JSONPath matching the previous RegEx which is non-compliant with the
 # JSONPath spec.
@@ -168,8 +167,7 @@ def get_entity_definitions(mapping_definition, schemas):
     entities = entities[0]
     for entity_definition in entities.items():
         entity_type, file_name = entity_definition
-        required_entities[entity_type] = JSP_get_basic_fields(
-            schemas.get(entity_type))
+        required_entities[entity_type] = JSP_get_basic_fields(schemas.get(entity_type))
     return required_entities
 
 
@@ -438,30 +436,40 @@ def resolve_source_reference(path, entities, entity_name, i, field, data):
     return i
 
 
-def get_or_make_uuid(entity_type, field_name, instance_number, source_data):
+def get_or_make_uuid(entity_type, field_name, instance_number, source_data, mapping_id):
     # Either uses a pre-created uuid present in source_data --or-- creates a new
     # uuid and saves it in source data make one uuid, we may not use it
     value = str(uuid.uuid4())
     base = ENTITY_EXTRACTION_ENRICHMENT
-    if source_data.get(base, {}).get(entity_type, {}).get(field_name):
+
+    # check previous path: {base}.{entity_type}.{field_name}[instance_number]
+    # turn into:           {base}.{mapping_id}.{entity_type}.{field_name}[instance_number]
+    if source_data.get(base, {}).get(entity_type, {}):
+        if not source_data[base].get(mapping_id):
+            source_data[base][mapping_id] = {}
+        source_data[base][mapping_id][entity_type] = source_data[base].pop(entity_type)
+
+    if source_data.get(base, {}).get(mapping_id, {}).get(entity_type, {}).get(field_name):
         try:
-            value = source_data.get(base, {}).get(
-                entity_type).get(field_name)[instance_number]
+            value = source_data[base][mapping_id][entity_type][field_name][instance_number]
         except IndexError:
-            source_data[base][entity_type][field_name].append(value)
+            source_data[base][mapping_id][entity_type][field_name].append(value)
         finally:
             return value
+
     else:
         # create as little as the hierarchy as required
         # there's a better way to do this with collections.defaultdict
         if not source_data.get(base):
             source_data[base] = {}
-        if not source_data[base].get(entity_type):
-            source_data[base][entity_type] = {}
-        if not source_data[base][entity_type].get(field_name):
-            source_data[base][entity_type][field_name] = [value]
-        else:
-            source_data[base][entity_type][field_name].append(value)
+        if not source_data[base].get(mapping_id):
+            source_data[base][mapping_id] = {}
+        if not source_data[base][mapping_id].get(entity_type):
+            source_data[base][mapping_id][entity_type] = {}
+        if not source_data[base][mapping_id][entity_type].get(field_name):
+            source_data[base][mapping_id][entity_type][field_name] = []
+
+        source_data[base][mapping_id][entity_type][field_name].append(value)
         return value
 
 
@@ -483,13 +491,15 @@ def extractor_action(
         field_name,
         instance_number,
         source_data,
+        mapping_id,
 ):
     # Takes an extractor action instruction (#!action#args) and dispatches it to
     # the proper function
     action, args = resolve_action(source_path)
     logger.debug('extractor_action: fn %s; args %s' % (action, (args,)))
+
     if action == 'uuid':
-        return get_or_make_uuid(entity_type, field_name, instance_number, source_data)
+        return get_or_make_uuid(entity_type, field_name, instance_number, source_data, mapping_id)
     elif action == 'entity-reference':
         return resolve_entity_reference(
             args,
@@ -507,7 +517,7 @@ def extractor_action(
         raise ValueError(_('No action with name {}').format(action))
 
 
-def extract_entity(entity_type, entities, requirements, data, entity_stub):
+def extract_entity(entity_type, entities, requirements, data, entity_stub, mapping_id):
     failed_actions = []
     # calculate how many instances we need to split the resolved data
     # into by maximum number of path resolutions
@@ -520,7 +530,8 @@ def extract_entity(entity_type, entities, requirements, data, entity_stub):
             for field in entity_stub.keys()
             if field in requirements.get(entity_type)  # make sure there are mappings
         }
-        for i in range(count)]
+        for i in range(count)
+    ]
 
     # iterate required fields, resolve paths and copy data to stubs
     for field, paths in requirements.get(entity_type).items():
@@ -529,6 +540,7 @@ def extract_entity(entity_type, entities, requirements, data, entity_stub):
             for i in range(count):
                 del entities[entity_type][i][field]
             continue
+
         # iterate over expected output entities
         # some paths will satisfy more than one entity, so we increment in different places
         i = 0
@@ -538,14 +550,13 @@ def extract_entity(entity_type, entities, requirements, data, entity_stub):
             path = paths[-1] if len(paths) < (i + 1) else paths[i]
             # check to see if we need to use a special reference here
             if '#!' not in path:
-                i = resolve_source_reference(
-                    path, entities, entity_type, i, field, data)
+                i = resolve_source_reference(path, entities, entity_type, i, field, data)
             else:
                 # Special action to be dispatched
                 action = DeferrableAction(
-                    [entity_type, i, field],
-                    [path, entities, entity_type, field, i, data],
-                    extractor_action)
+                    path=[entity_type, i, field],
+                    args=[path, entities, entity_type, field, i, data, mapping_id],
+                    function=extractor_action)
                 action.run()
                 # If the action throws an exception (usually reference to something not yet created)
                 # --then we allow for it to be resolved later
@@ -554,26 +565,24 @@ def extract_entity(entity_type, entities, requirements, data, entity_stub):
                 else:
                     failed_actions.append(action)
                 i += 1
+
     return failed_actions
 
 
-def extract_entities(requirements, response_data, entity_definitions, schemas):
-    data = response_data if response_data else []
+def extract_entities(requirements, response_data, entity_definitions, schemas, mapping_id):
+    data = response_data if response_data else {}
     data[ENTITY_EXTRACTION_ERRORS] = data.get(ENTITY_EXTRACTION_ERRORS, [])
+
     # for output. Since we need to submit the extracted entities as different
     # types, it's helpful to separate them here
     entities = {}
-    # entity names that have requirements
-    required_entities = requirements.keys()
     # sometimes order matters and our custom actions failed. We'll put them here
     failed_actions = []
-    for entity_type in required_entities:
-        entity_stub = get_entity_stub(
-            requirements, entity_definitions, entity_type, data)
+    for entity_type in requirements.keys():
+        entity_stub = get_entity_stub(requirements, entity_definitions, entity_type, data)
         # extract the entity pushing failures onto failed actions
         failed_actions.extend(
-            extract_entity(
-                entity_type, entities, requirements, data, entity_stub)
+            extract_entity(entity_type, entities, requirements, data, entity_stub, mapping_id)
         )
 
     failed_again = []
@@ -585,16 +594,18 @@ def extract_entities(requirements, response_data, entity_definitions, schemas):
             failed_again.append(action)
         else:
             action.resolve(entities)
+
     # send a log of paths with errors to the user via saved response
     for action in failed_again:
         error = 'Failure: "{}"'.format(action.error)
         data[ENTITY_EXTRACTION_ERRORS].append(error)
+
     validation_result = validate_entities(entities, schemas)
     data[ENTITY_EXTRACTION_ERRORS].extend(validation_result.validation_errors)
     return data, validation_result.entities
 
 
-def extract_create_entities(submission_payload, mapping_definition, schemas):
+def extract_create_entities(submission_payload, mapping_definition, schemas, mapping_id):
 
     # Get entity definitions
     entity_defs = get_entity_definitions(mapping_definition, schemas)
@@ -606,15 +617,17 @@ def extract_create_entities(submission_payload, mapping_definition, schemas):
     requirements = get_entity_requirements(entity_defs, field_mappings)
 
     # Only attempt entity extraction if requirements are present
-    submission_data = {ENTITY_EXTRACTION_ERRORS: []}
-    entity_types = {}
-    if any(requirements.values()):
-        submission_data, entity_types = extract_entities(
-            requirements,
-            submission_payload,
-            entity_defs,
-            schemas,
-        )
+    if not any(requirements.values()):
+        return submission_payload, []
+
+    response_data, entity_types = extract_entities(
+        requirements,
+        submission_payload,
+        entity_defs,
+        schemas,
+        f'mapping:{mapping_id}',  # avoid collision with entity names
+    )
+
     entities = []
     for schemadecorator_name, entity_payloads in entity_types.items():
         for entity_payload in entity_payloads:
@@ -625,4 +638,4 @@ def extract_create_entities(submission_payload, mapping_definition, schemas):
                 status='Publishable',
             )
             entities.append(entity)
-    return submission_data, entities
+    return response_data, entities

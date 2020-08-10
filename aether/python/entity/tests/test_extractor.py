@@ -246,15 +246,39 @@ class EntityExtractorTests(TestCase):
         field_name = '_id'
         instance_number = 0
         source_data = EXAMPLE_SOURCE_DATA
-        uuid = str(extractor.get_or_make_uuid(
-            entity_type, field_name, instance_number, source_data))
-        self.assertEqual(uuid.count('-'), 4)
+        # first time
+        _id_1 = str(extractor.get_or_make_uuid(
+            entity_type, field_name, instance_number, source_data, '#testing#'))
+        self.assertEqual(_id_1.count('-'), 4)
+        # second time
+        _id_2 = str(extractor.get_or_make_uuid(
+            entity_type, field_name, instance_number, source_data, '#testing#'))
+        self.assertEqual(_id_1, _id_2)
+        # another time but different mapping
+        _id_3 = str(extractor.get_or_make_uuid(
+            entity_type, field_name, instance_number, source_data, '#another#'))
+        self.assertNotEqual(_id_1, _id_3)
+
+    def test_get_or_make_uuid__old_version(self):
+        entity_type = 'Person'
+        field_name = '_id'
+        instance_number = 0
+        old_id = str(uuid.uuid4())
+        source_data = {
+            **EXAMPLE_SOURCE_DATA,
+            extractor.ENTITY_EXTRACTION_ENRICHMENT: {
+                entity_type: {field_name: [old_id]}
+            }
+        }
+        _id = str(extractor.get_or_make_uuid(
+            entity_type, field_name, instance_number, source_data, '#testing#'))
+        self.assertEqual(_id, old_id)
 
     def test_extractor_action__entity_reference(self):
         source_path = '#!entity-reference#bad-reference'
         try:
             extractor.extractor_action(
-                source_path, None, None, None, None, None)
+                source_path, None, None, None, None, None, None)
             self.assertTrue(False)
         except ValueError:
             self.assertTrue(True)
@@ -262,20 +286,20 @@ class EntityExtractorTests(TestCase):
     def test_extractor_action__none(self):
         source_path = '#!none'
         res = extractor.extractor_action(
-            source_path, None, None, None, None, None)
+            source_path, None, None, None, None, None, None)
         self.assertEqual(res, None)
 
     def test_extractor_action__constant(self):
         source_path = '#!constant#1#int'
         res = extractor.extractor_action(
-            source_path, None, None, None, None, None)
+            source_path, None, None, None, None, None, None)
         self.assertEqual(res, 1)
 
     def test_extractor_action__missing(self):
         source_path = '#!undefined#1#int'
         try:
             extractor.extractor_action(
-                source_path, None, None, None, None, None)
+                source_path, None, None, None, None, None, None)
             self.assertTrue(False)
         except ValueError:
             self.assertTrue(True)
@@ -291,7 +315,7 @@ class EntityExtractorTests(TestCase):
             requirements, entity_definitions, entity_name, response_data
         )
         failed_actions = extractor.extract_entity(
-            entity_name, entities, requirements, response_data, entity_stub
+            entity_name, entities, requirements, response_data, entity_stub, '#testing#'
         )
         self.assertEqual(
             len(expected_entity['Person']), len(entities['Person']))
@@ -311,6 +335,7 @@ class EntityExtractorTests(TestCase):
             response_data,
             entity_stubs,
             schemas,
+            '#testing#',
         )
         expected_entity = EXAMPLE_ENTITY
         self.assertEqual(
@@ -328,8 +353,9 @@ class EntityExtractorTests(TestCase):
             submission_payload,
             mapping_definition,
             schemas,
+            '#testing#',
         )
-        submission_errors = submission_data['aether_errors']
+        submission_errors = submission_data.get(extractor.ENTITY_EXTRACTION_ERRORS, [])
         self.assertEqual(len(submission_errors), 0)
         self.assertEqual(len(entities), 0)
 
@@ -341,18 +367,235 @@ class EntityExtractorTests(TestCase):
         submission_payload = EXAMPLE_SOURCE_DATA
         mapping_definition = EXAMPLE_MAPPING
         schemas = {'Person': EXAMPLE_SCHEMA}
+        mapping_id = '#testing#'
         submission_data, entities = extractor.extract_create_entities(
             submission_payload,
             mapping_definition,
             schemas,
+            mapping_id,
         )
-        submission_errors = submission_data['aether_errors']
+        submission_errors = submission_data.get(extractor.ENTITY_EXTRACTION_ERRORS, [])
         self.assertEqual(len(submission_errors), 0)
         self.assertTrue(len(entities) > 0)
         for entity in entities:
             self.assertIn(entity.schemadecorator_name, schemas.keys())
             self.assertEqual(entity.status, 'Publishable')
             self.assertEqual(entity.id, entity.payload['id'])
+
+        # generated "id" saved for re-extractions
+        self.assertEqual(
+            submission_data[extractor.ENTITY_EXTRACTION_ENRICHMENT],
+            {f'mapping:{mapping_id}': {'Person': {'id': [e.id for e in entities]}}}
+        )
+
+    def test_extract_create_entities__enrichment(self):
+        '''
+        Assert that in case of re-extraction the
+        extracted entities have the same ids as the time before
+        for the same mappings.
+        '''
+        submission_payload = {
+            'parents': [
+                {'name': 'Father'},
+                {'name': 'Mother'}
+            ],
+            'children': [
+                {'name': 'Boy'},
+                {'name': 'Girl'},
+            ],
+        }
+        mapping_definition = {
+            'entities': {
+                'Parent': '1',
+                'Child': '2',
+            },
+            'mapping': [
+                ['#!uuid', 'Parent.id'],
+                ['parents[*].name', 'Parent.name'],
+                ['#!uuid', 'Child.id'],
+                ['children[*].name', 'Child.name'],
+            ],
+        }
+        person_schema = {
+            'name': 'Person',
+            'type': 'record',
+            'fields': [
+                {'name': 'id', 'type': 'string'},
+                {'name': 'name', 'type': ['null', 'string']},
+            ],
+        }
+        schemas = {'Parent': person_schema, 'Child': person_schema}
+
+        mapping_id = '#testing#'
+        submission_data, entities = extractor.extract_create_entities(
+            submission_payload,
+            mapping_definition,
+            schemas,
+            mapping_id,
+        )
+
+        submission_errors = submission_data.get(extractor.ENTITY_EXTRACTION_ERRORS, [])
+        self.assertEqual(len(submission_errors), 0)
+        self.assertEqual(len(entities), 4)
+
+        # generated "id" saved for re-extractions
+        enrichment = submission_data[extractor.ENTITY_EXTRACTION_ENRICHMENT]
+        self.assertEqual(len(enrichment[f'mapping:{mapping_id}']['Parent']['id']), 2)
+        self.assertEqual(len(enrichment[f'mapping:{mapping_id}']['Child']['id']), 2)
+        self.assertNotEqual(
+            enrichment[f'mapping:{mapping_id}']['Parent']['id'],
+            enrichment[f'mapping:{mapping_id}']['Child']['id'],
+        )
+
+        # second round
+        submission_data_2, entities_2 = extractor.extract_create_entities(
+            submission_payload,
+            mapping_definition,
+            schemas,
+            mapping_id,
+        )
+        self.assertEqual(entities, entities_2)
+        enrichment_2 = submission_data_2[extractor.ENTITY_EXTRACTION_ENRICHMENT]
+        self.assertEqual(enrichment, enrichment_2)
+
+        # third round, different mapping
+        submission_data_3, entities_3 = extractor.extract_create_entities(
+            submission_payload,
+            mapping_definition,
+            schemas,
+            '#another#',
+        )
+        self.assertNotEqual(entities, entities_3)
+        enrichment_3 = submission_data_2[extractor.ENTITY_EXTRACTION_ENRICHMENT]
+        self.assertEqual(enrichment, enrichment_3)
+
+    def test_extract_create_entities__old_enrichment(self):
+        '''
+        Assert that old enrichment formats are migrated to new format.
+        '''
+        old_enrichment = {
+            'Parent': {'id': [str(uuid.uuid4()), str(uuid.uuid4())]},
+            'Child': {'id': [str(uuid.uuid4()), str(uuid.uuid4())]},
+            'Another': {'id': [str(uuid.uuid4()), str(uuid.uuid4())]},
+        }
+        submission_payload = {
+            'parents': [
+                {'name': 'Father'},
+                {'name': 'Mother'}
+            ],
+            'children': [
+                {'name': 'Boy'},
+                {'name': 'Girl'},
+            ],
+            extractor.ENTITY_EXTRACTION_ENRICHMENT: dict(old_enrichment),
+        }
+        mapping_definition = {
+            'entities': {
+                'Parent': '1',
+                'Child': '2',
+            },
+            'mapping': [
+                ['#!uuid', 'Parent.id'],
+                ['parents[*].name', 'Parent.name'],
+                ['#!uuid', 'Child.id'],
+                ['children[*].name', 'Child.name'],
+            ],
+        }
+        person_schema = {
+            'name': 'Person',
+            'type': 'record',
+            'fields': [
+                {'name': 'id', 'type': 'string'},
+                {'name': 'name', 'type': ['null', 'string']},
+            ],
+        }
+        schemas = {'Parent': person_schema, 'Child': person_schema}
+
+        mapping_id = '#testing#'
+        submission_data, entities = extractor.extract_create_entities(
+            submission_payload,
+            mapping_definition,
+            schemas,
+            mapping_id,
+        )
+
+        new_enrichment = submission_data[extractor.ENTITY_EXTRACTION_ENRICHMENT]
+        self.assertNotIn('Parent', new_enrichment)
+        self.assertEqual(new_enrichment[f'mapping:{mapping_id}']['Parent'], old_enrichment['Parent'])
+        self.assertNotIn('Child', new_enrichment)
+        self.assertEqual(new_enrichment[f'mapping:{mapping_id}']['Child'], old_enrichment['Child'])
+        self.assertIn('Another', new_enrichment, 'no migrated yet')
+        self.assertEqual(new_enrichment['Another'], old_enrichment['Another'])
+
+    def test_extract_create_entities__multiple(self):
+        '''
+        Assert that different mappings don't share IDs.
+        '''
+        submission_payload = {
+            'parents': [
+                {'name': 'Father'},
+                {'name': 'Mother'}
+            ],
+            'children': [
+                {'name': 'Boy'},
+                {'name': 'Girl'},
+            ],
+        }
+        person_schema = {
+            'name': 'Person',
+            'type': 'record',
+            'fields': [
+                {'name': 'id', 'type': 'string'},
+                {'name': 'name', 'type': ['null', 'string']},
+            ],
+        }
+        schemas = {'Person': person_schema}
+
+        parent_definition = {
+            'entities': {
+                'Person': '1',
+            },
+            'mapping': [
+                ['#!uuid', 'Person.id'],
+                ['parents[*].name', 'Person.name'],
+            ],
+        }
+        child_definition = {
+            'entities': {
+                'Person': '1',
+            },
+            'mapping': [
+                ['#!uuid', 'Person.id'],
+                ['children[*].name', 'Person.name'],
+            ],
+        }
+
+        __, parents = extractor.extract_create_entities(
+            submission_payload,
+            parent_definition,
+            schemas,
+            '#testing-parent#',
+        )
+
+        __, children = extractor.extract_create_entities(
+            submission_payload,
+            child_definition,
+            schemas,
+            '#testing-child#',
+        )
+
+        self.assertNotEqual(
+            [p.id for p in parents],
+            [c.id for c in children],
+        )
+
+        enrichment = submission_payload[extractor.ENTITY_EXTRACTION_ENRICHMENT]
+        self.assertIn('Person', enrichment['mapping:#testing-parent#'])
+        self.assertIn('Person', enrichment['mapping:#testing-child#'])
+        self.assertNotEqual(
+            enrichment['mapping:#testing-parent#']['Person'],
+            enrichment['mapping:#testing-child#']['Person'],
+        )
 
     def test_extract_create_entities__validation_error(self):
         '''
@@ -388,8 +631,9 @@ class EntityExtractorTests(TestCase):
             submission_payload,
             mapping_definition,
             schemas,
+            '#testing#',
         )
-        submission_errors = submission_data['aether_errors']
+        submission_errors = submission_data.get(extractor.ENTITY_EXTRACTION_ERRORS, [])
         self.assertEqual(
             len(submission_errors),
             len(EXAMPLE_SOURCE_DATA['data']['people']) * error_count,
@@ -424,8 +668,9 @@ class EntityExtractorTests(TestCase):
             submission_payload,
             mapping_definition,
             schemas,
+            '#testing#',
         )
-        submission_errors = submission_data['aether_errors']
+        submission_errors = submission_data.get(extractor.ENTITY_EXTRACTION_ERRORS, [])
         self.assertEqual(len(entities), 0)
         self.assertEqual(len(submission_errors), 1)
         self.assertIn('is not a valid uuid',
