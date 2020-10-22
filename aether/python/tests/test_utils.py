@@ -16,9 +16,12 @@
 # specific language governing permissions and limitations
 # under the License.
 
+from copy import deepcopy
 from unittest import TestCase, mock
 
 from aether.python import utils
+from aether.python.utils import _key_array_action
+
 
 from . import EXAMPLE_NESTED_SOURCE_DATA
 
@@ -122,3 +125,75 @@ class UtilsTests(TestCase):
                 self.assertEqual(str(e), '3')
 
             self.assertEqual(mock_req.call_count, 3)
+
+    def test____key_array_action(self):
+        _append_values = [
+            'a[-1]',
+            'a[]',
+            'a[not an index]'
+        ]
+        _place_values = [
+            ('a[1]', 1),
+            ('a[100]', 100)
+        ]
+        _false_values = [
+            'a',
+            'a1',
+            'a.2',
+        ]
+
+        for t in _append_values:
+            res = _key_array_action(t)
+            self.assertEqual(res.action, utils.AOType.APPEND), \
+                f'{t} should be append'
+            self.assertEqual(res.key, 'a')
+        for (t, idx) in _place_values:
+            res = _key_array_action(t)
+            self.assertEqual(res.action, utils.AOType.PLACE), \
+                ('%s should be placed %s' % (t, res.action))
+            self.assertEqual(res.index, idx), \
+                '%s should be placed at %s' % (t, idx)
+            self.assertEqual(res.key, 'a')
+        for t in _false_values:
+            res = _key_array_action(t)
+            self.assertEqual(res.action, utils.AOType.NONE), \
+                f'{t} is an NOT array element'
+
+    def test__replace_nested__value(self):
+        data = deepcopy(EXAMPLE_NESTED_SOURCE_DATA)
+        keys = ['data', 'village']
+        value = 'newVillageID'
+        data = utils.replace_nested(data, keys, value)
+        self.assertEqual(data['data']['village'], value)
+
+    def test__replace_nested__replace_element(self):
+        data = deepcopy(EXAMPLE_NESTED_SOURCE_DATA)
+        keys = ['data', 'houses[0]']
+        value = 'new_house'
+        data = utils.replace_nested(data, keys, value)
+        self.assertEqual(data['data']['houses'][0], value)
+        self.assertEqual(len(data['data']['houses']), 2)
+
+    def test__replace_nested__element_mistaken_path(self):
+        data = deepcopy(EXAMPLE_NESTED_SOURCE_DATA)
+        keys = ['data', 'village', 'houses[0]']
+        value = 'new_house'
+        data = utils.replace_nested(data, keys, value)
+        self.assertEqual(data['data']['village']['houses'][0], value)
+        self.assertEqual(len(data['data']['village']['houses']), 1)
+
+    def test__replace_nested__append_element(self):
+        data = deepcopy(EXAMPLE_NESTED_SOURCE_DATA)
+        keys = ['data', 'houses[]']
+        value = 'new_house'
+        data = utils.replace_nested(data, keys, value)
+        self.assertEqual(data['data']['houses'][2], value)
+        self.assertEqual(len(data['data']['houses']), 3)
+
+    def test__replace_nested__create_list_with_element(self):
+        data = deepcopy(EXAMPLE_NESTED_SOURCE_DATA)
+        keys = ['data', 'missing', 'houses[1001]']
+        value = 'new_house'
+        data = utils.replace_nested(data, keys, value)
+        self.assertEqual(data['data']['missing']['houses'][0], value)
+        self.assertEqual(len(data['data']['missing']['houses']), 1)

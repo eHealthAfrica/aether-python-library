@@ -16,9 +16,14 @@
 # specific language governing permissions and limitations
 # under the License.
 
+from dataclasses import dataclass
+import enum
+import re
 import requests
 from time import sleep
 from aether.python.constants import MergeOptions as MERGE_OPTIONS
+
+RE_BRACKETS = re.compile(r'''\[(.*?)\]''')
 
 
 def object_contains(test, obj):
@@ -56,6 +61,35 @@ def merge_objects(source, target, direction):
     return result
 
 
+class AOType(enum.Enum):
+    NONE = enum.auto()
+    APPEND = enum.auto()
+    PLACE = enum.auto()
+
+
+@dataclass
+class ArrayOperation:
+    action: 'AOType' = AOType.NONE
+    key: str = None
+    index: int = 0
+
+
+def _key_array_action(key) -> ArrayOperation:
+    if '[' not in key:
+        return ArrayOperation()
+    idx = RE_BRACKETS.findall(key)[0]
+    key = key.split('[')[0]
+    if not idx:
+        return ArrayOperation(AOType.APPEND, key)
+    try:
+        idx = int(idx)
+        if idx < 0:
+            return ArrayOperation(AOType.APPEND, key)
+        return ArrayOperation(AOType.PLACE, key, idx)
+    except ValueError:
+        return ArrayOperation(AOType.APPEND, key)
+
+
 def replace_nested(_dict, keys, value, replace_missing=True):
     '''
     Puts a value into an existing structure.
@@ -90,7 +124,27 @@ def replace_nested(_dict, keys, value, replace_missing=True):
                 replace_missing
             )
     else:
-        _dict[keys[0]] = value
+        # we have arrived at the value
+        op = _key_array_action(keys[0])
+        if op.action is AOType.NONE:
+            _dict[keys[0]] = value
+            return _dict
+        try:
+            # does this list exist?
+            _dict[op.key]
+        except (TypeError, KeyError):
+            _dict = {op.key: []}
+        if isinstance(_dict[op.key], list) is False:
+            _dict[op.key] = [value]
+        elif isinstance(_dict[op.key], list):
+            if op.action is AOType.APPEND:
+                _dict[op.key].append(value)
+            else:
+                try:
+                    _dict[op.key][op.index] = value
+                except IndexError:
+                    _dict[op.key].append(value)
+
     return _dict
 
 
