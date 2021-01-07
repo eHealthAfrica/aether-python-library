@@ -5,6 +5,7 @@
 #                                                                              #
 ################################################################################
 
+avro-python3
 eha_jsonpath
 jsonschema
 # birdisle is not ready for 3.4

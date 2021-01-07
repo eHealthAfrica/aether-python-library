@@ -53,6 +53,7 @@ setup(
 
     python_requires='>=3.7',
     install_requires=[
+        'avro-python3',
         'eha_jsonpath',
         'jsonschema',
         'redis',
